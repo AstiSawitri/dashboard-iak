@@ -59,7 +59,7 @@ function tulisSumber(sumber) {
 // Gaya dasar Chart.js supaya semua grafik seragam
 function gayaChart() {
   if (!window.Chart) return;
-  Chart.defaults.font.family = "Archivo, system-ui, sans-serif";
+  Chart.defaults.font.family = "Montserrat, system-ui, sans-serif";
   Chart.defaults.font.size = 13;
   Chart.defaults.color = css("--ink-2");
   Chart.defaults.borderColor = css("--line-2");

@@ -37,7 +37,7 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: "Archivo", system-ui, sans-serif;
+  font-family: "Montserrat", system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.55;
   font-stretch: 100%;

@@ -1,5 +1,5 @@
 /* CSS dashboard ARUS (anggota kelompok), dibatasi ke .arus dan diberi palet web utama oleh tools/samakan_atlas.py. */
-.arus{--bg:#FAFBFB;--surface:#FFFFFF;--surface-soft:#FAFBFB;--ink:#182640;--muted:#7E899B;--line:#E6EAEC;--primary:#7E899B;--primary-soft:#F2F4F3;--navy:#182640;--lime:#FBEFB8;--green:#3F577C;--shadow:0 4px 18px #18264004;--radius:17px;color-scheme:light;font-family:"Archivo",system-ui,sans-serif}
+.arus{--bg:#FAFBFB;--surface:#FFFFFF;--surface-soft:#FAFBFB;--ink:#182640;--muted:#7E899B;--line:#E6EAEC;--primary:#7E899B;--primary-soft:#F2F4F3;--navy:#182640;--lime:#FBEFB8;--green:#3F577C;--shadow:0 4px 18px #18264004;--radius:17px;color-scheme:light;font-family:"Montserrat",system-ui,sans-serif}
 .arus *{box-sizing:border-box}
 .arus{margin:0;background:var(--bg);color:var(--ink);font-size:16.5px;line-height:1.5}
 .arus button,.arus input,.arus select{font:inherit}
@@ -359,7 +359,7 @@
 .arus .province-matrix{grid-template-columns:repeat(8,1fr)}
 .arus{background:#FFFFFF;color:#182640}
 .arus *{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
-.arus{--bg:#F2F4F3;--surface:#FFFFFF;--surface-soft:#F2F4F3;--ink:#182640;--muted:#7E899B;--line:#E6EAEC;--primary:#22345A;--primary-soft:#E6EAEC;--navy:#182640;--lime:#D6DCE0;--green:#22345A;--shadow:none;--radius:5px;font-family:"Archivo",system-ui,sans-serif}
+.arus{--bg:#F2F4F3;--surface:#FFFFFF;--surface-soft:#F2F4F3;--ink:#182640;--muted:#7E899B;--line:#E6EAEC;--primary:#22345A;--primary-soft:#E6EAEC;--navy:#182640;--lime:#D6DCE0;--green:#22345A;--shadow:none;--radius:5px;font-family:"Montserrat",system-ui,sans-serif}
 .arus{font-size:15.3px;color:var(--ink);background:var(--bg)}
 .arus .brand img{border-radius:4px;width:32px;height:32px}
 .arus .brand-dot{color:#C2502E}
@@ -396,7 +396,7 @@
 .arus .kpi-label{font-size:14.1px;color:#4D5A70;font-weight:500}
 .arus .metric-year{font-size:12.9px;color:#7E899B;flex-shrink:0}
 .arus .metric-year.school-year{color:#C2502E}
-.arus .kpi-value{font-family:"Archivo",system-ui,sans-serif;font-size:31px;letter-spacing:-0.01em;font-weight:600;line-height:1.2;font-variant-numeric:tabular-nums}
+.arus .kpi-value{font-family:"Montserrat",system-ui,sans-serif;font-size:31px;letter-spacing:-0.01em;font-weight:600;line-height:1.2;font-variant-numeric:tabular-nums}
 .arus .kpi-value small{font-size:14.7px;letter-spacing:0;margin-left:5px}
 .arus .kpi-bottom{font-size:12.9px;margin-top:10px;line-height:1.65;min-height:30px;color:var(--muted)}
 .arus .kpi-icon{display:none}
@@ -514,7 +514,7 @@
 .arus .scatter-chart{width:100%;height:auto;display:block}
 .arus .plot-y-caption{font-size:13.5px;color:var(--muted);margin-left:35px}
 .arus .plot-grid line{stroke:var(--line);stroke-width:.8;stroke-dasharray:2 3}
-.arus .plot-grid text{fill:var(--muted);font-size:13.5px;font-family:"Archivo",system-ui,sans-serif}
+.arus .plot-grid text{fill:var(--muted);font-size:13.5px;font-family:"Montserrat",system-ui,sans-serif}
 .arus .axis-title{fill:var(--muted);font-size:14.1px}
 .arus .plot-point{cursor:pointer;outline:none}
 .arus .plot-point circle:not(.point-hit){fill:#3F577C;stroke:var(--surface);stroke-width:1;opacity:.8}

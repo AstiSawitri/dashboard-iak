@@ -155,7 +155,7 @@ def proses(css):
 def main(src, dst):
     css = open(src, encoding="utf-8").read()
     css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
-    css = css.replace('"Segoe UI",Arial,sans-serif', '"Archivo",system-ui,sans-serif')
+    css = css.replace('"Segoe UI",Arial,sans-serif', '"Montserrat",system-ui,sans-serif')
     css = proses(css)
     css = ganti_warna(css)
     css = rapikan_ukuran(css)
