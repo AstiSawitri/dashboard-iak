@@ -16,7 +16,7 @@
 
 {% if session.get('user_id') %}
 <header class="topbar">
-  <a class="brand" href="{{ url_for('dashboard') }}">{{ mark() }}<span>Dasbor Energi Indonesia</span></a>
+  <a class="brand" href="{{ url_for('dashboard') }}">Dasbor Energi</a>
   <nav class="nav" aria-label="Halaman">
     <a href="{{ url_for('dashboard') }}" {% if page == 'dasbor' %}aria-current="page"{% endif %}>Ringkasan</a>
     <a href="{{ url_for('atlas') }}#explore" data-atlas="explore">Eksplorasi provinsi</a>

@@ -4,11 +4,11 @@ const css = (name) => getComputedStyle(document.documentElement).getPropertyValu
 // Warna dipakai konsisten: biru tua = besaran (produksi/kapasitas), oranye panas = kekurangan akses.
 const WARNA = {
   ink: css("--ink"),
-  redup: "#B9C3CF",
+  redup: "#C9C2B3",
   volt: css("--volt"),
-  kurang: css("--f-panasbumi"),
-  sma: css("--f-air"),
-  smk: css("--f-angin"),
+  kurang: css("--hot"),
+  sma: css("--ink"),
+  smk: "#8D877B",
 };
 
 const nf = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 });
@@ -61,7 +61,8 @@ function gayaChart() {
   if (!window.Chart) return;
   Chart.defaults.font.family = "Montserrat, system-ui, sans-serif";
   Chart.defaults.font.size = 13;
-  Chart.defaults.color = css("--ink-2");
+  Chart.defaults.font.weight = 600;
+  Chart.defaults.color = css("--ink");
   Chart.defaults.borderColor = css("--line-2");
   Chart.defaults.maintainAspectRatio = false;
   Chart.defaults.animation.duration = 400;
@@ -72,7 +73,8 @@ function gayaChart() {
   Chart.defaults.plugins.legend.labels.padding = 14;
   Chart.defaults.plugins.tooltip.backgroundColor = css("--ink");
   Chart.defaults.plugins.tooltip.padding = 10;
-  Chart.defaults.plugins.tooltip.cornerRadius = 3;
+  Chart.defaults.plugins.tooltip.cornerRadius = 0;
+  Chart.defaults.plugins.tooltip.titleColor = css("--volt");
   Chart.defaults.plugins.tooltip.boxPadding = 4;
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) Chart.defaults.animation = false;
 }

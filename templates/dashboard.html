@@ -1,42 +1,51 @@
 {% extends 'base.html' %}
 {% block title %}Ringkasan - Dasbor Energi Indonesia{% endblock %}
 {% block content %}
-<main class="page">
-
-  <div class="controls" role="group" aria-label="Filter">
-    <label class="control">
-      <span class="control-label">Wilayah</span>
-      <select id="wilayah"><option value="">Seluruh Indonesia</option></select>
-    </label>
-    <label class="control">
-      <span class="control-label">Provinsi</span>
-      <select id="provinsi"><option value="">Semua provinsi</option></select>
-    </label>
-    <button type="button" class="btn-quiet reset" id="reset" hidden>Hapus filter</button>
-  </div>
-
-  <section class="hero" aria-labelledby="headline">
-    <h1 id="headline" class="headline">Memuat data…</h1>
-
-    <div class="map-head">
-      <div class="seg-switch" id="indikator" role="radiogroup" aria-label="Warna peta menurut">
-        <button type="button" role="radio" data-k="rumah_tangga_persen">Rumah tangga berlistrik</button>
-        <button type="button" role="radio" data-k="rumah_tangga_desa_persen">Rumah tangga desa</button>
-        <button type="button" role="radio" data-k="produksi_gwh">Produksi listrik</button>
-        <button type="button" role="radio" data-k="kapasitas_mw">Kapasitas pembangkit</button>
-      </div>
-      <ul class="map-legend" id="legend" aria-label="Keterangan warna"></ul>
+<main>
+  <section class="hero wrap" aria-labelledby="hero-line">
+    <div class="controls" role="group" aria-label="Filter">
+      <label class="control">
+        <span class="control-label">Wilayah</span>
+        <select id="wilayah"><option value="">Seluruh Indonesia</option></select>
+      </label>
+      <label class="control">
+        <span class="control-label">Provinsi</span>
+        <select id="provinsi"><option value="">Semua provinsi</option></select>
+      </label>
+      <button type="button" class="reset" id="reset" hidden>Hapus filter</button>
     </div>
-    <figure class="map">
-      <svg id="peta" role="img" aria-label="Peta 38 provinsi Indonesia"></svg>
-      <div class="map-tip" id="tip" hidden></div>
-      <figcaption class="credit">
-        Klik provinsi untuk melihat profilnya. Peta: Deny Herianto,
-        <a href="https://github.com/denyherianto/indonesia-geojson-topojson-maps-with-38-provinces" target="_blank" rel="noopener">Indonesia GeoJSON 38 Provinces</a>,
-        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, disederhanakan.
-      </figcaption>
-    </figure>
+    <p class="hero-num" id="hero-num" aria-hidden="true">&nbsp;</p>
+    <h1 class="hero-line" id="hero-line">Memuat data…</h1>
+    <p class="hero-vs" id="hero-vs"></p>
+  </section>
 
+  <div class="band"><div class="wrap"><p id="band">&nbsp;</p><small id="band-note"></small></div></div>
+
+  <section class="sheet-dark" aria-labelledby="map-title">
+    <div class="wrap">
+      <div class="map-head">
+        <h2 class="map-title" id="map-title">Peta 38 provinsi</h2>
+        <div class="seg-switch" id="indikator" role="radiogroup" aria-label="Warna peta menurut">
+          <button type="button" role="radio" data-k="rumah_tangga_persen">RT berlistrik</button>
+          <button type="button" role="radio" data-k="rumah_tangga_desa_persen">RT desa</button>
+          <button type="button" role="radio" data-k="produksi_gwh">Produksi</button>
+          <button type="button" role="radio" data-k="kapasitas_mw">Kapasitas</button>
+        </div>
+      </div>
+      <figure class="map">
+        <svg id="peta" role="img" aria-label="Peta 38 provinsi Indonesia"></svg>
+        <div class="map-tip" id="tip" hidden></div>
+        <ul class="map-legend" id="legend" aria-label="Keterangan warna"></ul>
+        <figcaption class="credit">
+          Klik provinsi untuk melihat profilnya. Peta: Deny Herianto,
+          <a href="https://github.com/denyherianto/indonesia-geojson-topojson-maps-with-38-provinces" target="_blank" rel="noopener">Indonesia GeoJSON 38 Provinces</a>,
+          <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, disederhanakan.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <div class="wrap" style="padding-bottom:120px">
     <dl class="figures">
       <div class="figure">
         <dt>Listrik dibangkitkan</dt>
@@ -54,56 +63,52 @@
         <dd class="delta" id="k-rt-d"></dd>
       </div>
       <div class="figure">
-        <dt>Sekolah berlistrik, SMA / SMK</dt>
+        <dt>SMA / SMK berlistrik</dt>
         <dd><span class="num" id="k-sekolah">–</span> <span class="unit">%</span></dd>
         <dd class="delta" id="k-sekolah-d"></dd>
       </div>
     </dl>
     <p class="scope" id="scope"></p>
-  </section>
 
-  <section class="block" aria-labelledby="h-produksi">
+<section class="block" aria-labelledby="h-produksi">
     <div class="block-text">
-      <h2 id="h-produksi">Listrik yang dibangkitkan per provinsi</h2>
-      <p class="desc">Energi listrik yang dihasilkan pembangkit di tiap provinsi selama setahun, dalam gigawatt-jam.</p>
+      <h2 id="h-produksi"><span class="stamp">Listrik yang dibangkitkan per provinsi</span></h2>
       <p class="note" id="note-produksi"></p>
-      <p class="src" data-src="produksi_listrik"></p>
+      <div><p class="desc">Energi listrik yang dihasilkan pembangkit di tiap provinsi selama setahun, dalam gigawatt-jam.</p><p class="src" data-src="produksi_listrik"></p></div>
     </div>
     <div class="block-chart tall"><canvas id="c-produksi" aria-label="Grafik produksi listrik per provinsi"></canvas></div>
   </section>
 
   <section class="block" aria-labelledby="h-kapasitas">
     <div class="block-text">
-      <h2 id="h-kapasitas">Kapasitas pembangkit dan pemakaiannya</h2>
-      <p class="desc">Tiap titik adalah satu provinsi. Makin ke kanan makin besar kapasitas terpasangnya; makin ke atas makin banyak listrik yang benar-benar dibangkitkan. Skala logaritmik.</p>
+      <h2 id="h-kapasitas"><span class="stamp">Kapasitas pembangkit dan pemakaiannya</span></h2>
       <p class="note" id="note-kapasitas"></p>
-      <p class="src" data-src="kapasitas_pembangkit produksi_listrik"></p>
+      <div><p class="desc">Tiap titik adalah satu provinsi. Makin ke kanan makin besar kapasitas terpasangnya; makin ke atas makin banyak listrik yang benar-benar dibangkitkan. Skala logaritmik. Faktor kapasitas hanya perkiraan kasar: listrik bisa disalurkan antarprovinsi dan sebagian pembangkit hanya cadangan.</p><p class="src" data-src="kapasitas_pembangkit produksi_listrik"></p></div>
     </div>
     <div class="block-chart"><canvas id="c-kapasitas" aria-label="Grafik kapasitas terhadap produksi listrik"></canvas></div>
   </section>
 
   <section class="block" aria-labelledby="h-rt">
     <div class="block-text">
-      <h2 id="h-rt">Rumah tangga berlistrik di kota dan desa</h2>
-      <p class="desc">Garis menghubungkan persentase di perdesaan (ujung kiri) dan perkotaan (ujung kanan); titik menunjukkan angka total provinsi. Makin panjang garis, makin lebar kesenjangannya.</p>
+      <h2 id="h-rt"><span class="stamp">Rumah tangga berlistrik di kota dan desa</span></h2>
       <p class="note" id="note-rt"></p>
-      <p class="src" data-src="rumah_tangga_listrik"></p>
+      <div><p class="desc">Garis menghubungkan persentase di perdesaan (ujung kiri) dan perkotaan (ujung kanan); titik menunjukkan angka total provinsi. Makin panjang garis, makin lebar kesenjangannya. DKI Jakarta tidak punya angka perdesaan di sumber, jadi hanya titik totalnya yang tampil.</p><p class="src" data-src="rumah_tangga_listrik"></p></div>
     </div>
     <div class="block-chart tall"><canvas id="c-rt" aria-label="Grafik rumah tangga berlistrik kota dan desa"></canvas></div>
   </section>
 
   <section class="block" aria-labelledby="h-sekolah">
     <div class="block-text">
-      <h2 id="h-sekolah">SMA dan SMK yang sudah berlistrik</h2>
-      <p class="desc">Hanya provinsi yang belum 100% ditampilkan, karena sebagian besar provinsi sudah penuh.</p>
+      <h2 id="h-sekolah"><span class="stamp">SMA dan SMK yang sudah berlistrik</span></h2>
       <p class="note" id="note-sekolah"></p>
-      <p class="src" data-src="sma_listrik smk_listrik"></p>
+      <div><p class="desc">Hanya provinsi yang belum 100% ditampilkan, karena sebagian besar provinsi sudah penuh.</p><p class="src" data-src="sma_listrik smk_listrik"></p></div>
     </div>
     <div class="block-chart"><canvas id="c-sekolah" aria-label="Grafik akses listrik SMA dan SMK"></canvas>
       <p class="empty" id="sekolah-empty" hidden></p>
     </div>
   </section>
 
+  </div>
 </main>
 {% endblock %}
 

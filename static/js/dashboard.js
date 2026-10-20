@@ -78,20 +78,50 @@ async function perbarui() {
 function gambarJudul() {
   const p = terpilih();
   const rows = lingkup();
-  let teks;
+  const urutRT = [...rows].sort((a, b) => a.rumah_tangga_persen - b.rumah_tangga_persen);
+  const fokus = p || urutRT[0];
+  const tinggi = urutRT[urutRT.length - 1];
+
+  // angka raksasa
+  const num = $("hero-num");
+  num.textContent = persen(fokus.rumah_tangga_persen);
+  const kecil = document.createElement("small"); kecil.textContent = "%";
+  num.append(kecil);
+  num.classList.toggle("panas", fokus.rumah_tangga_persen < 95);
+
+  // kalimat di bawahnya, nama provinsi distabilo
+  const line = $("hero-line");
+  line.textContent = "";
+  const mark = document.createElement("mark"); mark.textContent = fokus.provinsi;
+  line.append("rumah tangga di ", mark, " punya listrik.");
+
+  const vs = $("hero-vs");
+  vs.textContent = "";
+  const b = (t) => { const el = document.createElement("b"); el.textContent = t; return el; };
   if (p) {
-    teks = p.rumah_tangga_persen >= 99.5
-      ? `${p.provinsi}: ${persen(p.rumah_tangga_persen)}% rumah tangga sudah berlistrik dan pembangkitnya menghasilkan ${nf0.format(p.produksi_gwh)} GWh setahun.`
-      : `${p.provinsi}: baru ${persen(p.rumah_tangga_persen)}% rumah tangga berlistrik, peringkat ${peringkat(p, "rumah_tangga_persen")} dari ${PROV.length} provinsi.`;
+    vs.append("Peringkat ", b(`${peringkat(p, "rumah_tangga_persen")} dari ${PROV.length}`), " provinsi. Nasional ", b(`${persen(NAS.rumah_tangga_persen)}%`), ".");
+  } else if (state.wilayah) {
+    vs.append(`Terendah di ${state.wilayah}. Tertinggi: `, b(`${tinggi.provinsi} ${persen(tinggi.rumah_tangga_persen)}%`), ".");
   } else {
-    const rendah = [...rows].sort((a, b) => a.rumah_tangga_persen - b.rumah_tangga_persen)[0];
-    teks = state.wilayah
-      ? (rendah.rumah_tangga_persen >= 99.5
-        ? `Di ${state.wilayah}, hampir semua rumah tangga sudah berlistrik; angka terendah ada di ${rendah.provinsi} (${persen(rendah.rumah_tangga_persen)}%).`
-        : `Di ${state.wilayah}, ${rendah.provinsi} paling tertinggal: baru ${persen(rendah.rumah_tangga_persen)}% rumah tangga berlistrik.`)
-      : `Hampir semua rumah tangga di Indonesia sudah berlistrik (${persen(NAS.rumah_tangga_persen)}%), tapi di ${rendah.provinsi} baru ${persen(rendah.rumah_tangga_persen)}%.`;
+    vs.append("Terendah di Indonesia. Nasional ", b(`${persen(NAS.rumah_tangga_persen)}%`), ", tertinggi ", b(`${tinggi.provinsi} ${persen(tinggi.rumah_tangga_persen)}%`), ".");
   }
-  $("headline").textContent = teks;
+
+  // pita kuning: siapa yang membangkitkan listrik
+  let band, note;
+  if (p) {
+    band = `${p.provinsi} membangkitkan ${persen(p.produksi_gwh / NAS.produksi_gwh * 100, 1)}% listrik nasional.`;
+    note = `${nf0.format(p.produksi_gwh)} GWh pada 2024, peringkat ${peringkat(p, "produksi_gwh")} dari ${PROV.length} provinsi.`;
+  } else if (state.wilayah) {
+    const top = urutTurun(rows, "produksi_gwh")[0], tot = jumlah(rows, "produksi_gwh");
+    band = `${top.provinsi} membangkitkan ${persen(top.produksi_gwh / tot * 100, 1)}% listrik ${state.wilayah}.`;
+    note = `${nf0.format(top.produksi_gwh)} dari ${nf0.format(tot)} GWh di ${rows.length} provinsi, 2024.`;
+  } else {
+    const jawa = PROV.filter((r) => r.wilayah === "Jawa"), gwh = jumlah(jawa, "produksi_gwh");
+    band = `Jawa membangkitkan ${persen(gwh / NAS.produksi_gwh * 100, 1)}% listrik Indonesia.`;
+    note = `Enam provinsi, ${nf0.format(gwh)} dari ${nf0.format(NAS.produksi_gwh)} GWh pada 2024. Sisanya dibagi 32 provinsi.`;
+  }
+  $("band").textContent = band;
+  $("band-note").textContent = note;
 }
 
 function gambarAngka(ring) {
@@ -141,8 +171,8 @@ function gambarAngka(ring) {
 
 // ---------------------------------------------------------------- peta
 const AKSES_BATAS = [70, 90, 98, 99.5];
-const AKSES_WARNA = ["#8E2F17", "#C2502E", "#E59A6C", "#F3D6C2", "#DCE3EA"];
-const BESAR_WARNA = ["#DCE3EA", "#A7B6C9", "#6F87A5", "#3F577C", "#182640"];
+const AKSES_WARNA = ["#FF4B1F", "#FF8A3D", "#FFD60A", "#8A8477", "#3D3B36"];   // di atas latar hitam
+const BESAR_WARNA = ["#3D3B36", "#5C5126", "#9C8418", "#D8B20C", "#FFD60A"];
 let skala = null;
 
 function buatSkala(k) {
@@ -207,7 +237,7 @@ function gambarPeta() {
   document.querySelectorAll("#peta path").forEach((el) => {
     const p = PROV.find((r) => r.kode_bps === Number(el.dataset.kode));
     const c = skala.warna(p[k]);
-    el.style.fill = c || "#C8CDD3";
+    el.style.fill = c || "#555";
     el.classList.toggle("luar", !dalamLingkup(p));
     el.classList.toggle("aktif", p.kode_bps === state.kode);
     if (p.kode_bps === state.kode) el.parentNode.appendChild(el);
@@ -222,7 +252,7 @@ function gambarPeta() {
   });
   if (PROV.some((p) => p[k] == null)) {
     const li = document.createElement("li");
-    const sw = document.createElement("i"); sw.className = "sw"; sw.style.setProperty("--c", "#C8CDD3");
+    const sw = document.createElement("i"); sw.className = "sw"; sw.style.setProperty("--c", "#555");
     li.append(sw, "tidak tersedia");
     lg.append(li);
   }
@@ -244,7 +274,7 @@ function klikProvinsi(labelsKode) {
 
 function warnaBatang(p) {
   if (!state.kode) return WARNA.ink;
-  return p.kode_bps === state.kode ? WARNA.volt : WARNA.redup;
+  return p.kode_bps === state.kode ? WARNA.kurang : WARNA.redup;
 }
 
 function gambarProduksi() {
@@ -283,9 +313,8 @@ function gambarProduksi() {
     const tot = jumlah(rows, "produksi_gwh");
     teks = `${rows[0].provinsi} menyumbang ${persen(rows[0].produksi_gwh / tot * 100, 1)}% produksi listrik ${state.wilayah}.`;
   } else {
-    const jawa = PROV.filter((r) => r.wilayah === "Jawa");
     const kecil = rows[rows.length - 1];
-    teks = `Enam provinsi di Pulau Jawa membangkitkan ${persen(jumlah(jawa, "produksi_gwh") / NAS.produksi_gwh * 100, 1)}% listrik nasional. ${rows[0].provinsi} terbesar dengan ${nf0.format(rows[0].produksi_gwh)} GWh, sedangkan ${kecil.provinsi} hanya ${nf.format(kecil.produksi_gwh)} GWh.`;
+    teks = `${rows[0].provinsi} ${nf0.format(rows[0].produksi_gwh)} GWh. ${kecil.provinsi} cuma ${nf.format(kecil.produksi_gwh)} GWh.`;
   }
   $("note-produksi").textContent = teks;
 }
@@ -295,7 +324,7 @@ function gambarKapasitas() {
   const xs = all.map((r) => r.kapasitas_mw);
   const xmin = Math.min(...xs) * 0.7, xmax = Math.max(...xs) * 1.4;
   const garis = (fk) => [{ x: xmin, y: xmin * 8.76 * fk }, { x: xmax, y: xmax * 8.76 * fk }];
-  const warnaTitik = (r) => (r.kode_bps === state.kode ? WARNA.volt : dalamLingkup(r) ? WARNA.ink : "#C9D1DA");
+  const warnaTitik = (r) => (r.kode_bps === state.kode ? WARNA.kurang : dalamLingkup(r) ? WARNA.ink : WARNA.redup);
   buat("c-kapasitas", {
     type: "scatter",
     data: {
@@ -309,8 +338,8 @@ function gambarKapasitas() {
           pointRadius: all.map((r) => (r.kode_bps === state.kode ? 8 : dalamLingkup(r) ? 5 : 3.5)),
           pointHoverRadius: 8,
         },
-        { label: "Faktor kapasitas 30%", type: "line", data: garis(0.3), borderColor: "#9AA6B6", borderDash: [4, 4], borderWidth: 1, pointRadius: 0 },
-        { label: "Faktor kapasitas 70%", type: "line", data: garis(0.7), borderColor: "#9AA6B6", borderDash: [1, 3], borderWidth: 1.5, pointRadius: 0 },
+        { label: "Faktor kapasitas 30%", type: "line", data: garis(0.3), borderColor: "#8D877B", borderDash: [4, 4], borderWidth: 1, pointRadius: 0 },
+        { label: "Faktor kapasitas 70%", type: "line", data: garis(0.7), borderColor: "#8D877B", borderDash: [1, 3], borderWidth: 1.5, pointRadius: 0 },
       ],
     },
     options: {
@@ -339,12 +368,12 @@ function gambarKapasitas() {
 
   const rows = urutTurun(lingkup(), "faktor_kapasitas_persen");
   const p = terpilih();
-  const catatan = " Angka ini perkiraan kasar: listrik bisa disalurkan antarprovinsi dan sebagian pembangkit hanya cadangan.";
+  const catatan = "";
   if (p) {
-    $("note-kapasitas").textContent = `Pembangkit di ${p.provinsi} menghasilkan sekitar ${persen(p.faktor_kapasitas_persen, 1)}% dari kemampuan maksimalnya dalam setahun (nasional ${persen(NAS.faktor_kapasitas_persen, 1)}%).` + catatan;
+    $("note-kapasitas").textContent = `Pembangkit ${p.provinsi} terpakai sekitar ${persen(p.faktor_kapasitas_persen, 1)}% setahun. Nasional ${persen(NAS.faktor_kapasitas_persen, 1)}%.` + catatan;
   } else {
     const hi = rows[0], lo = rows[rows.length - 1];
-    $("note-kapasitas").textContent = `${state.wilayah ? `Di ${state.wilayah}, p` : "P"}emakaian kapasitas paling tinggi di ${hi.provinsi} (sekitar ${persen(hi.faktor_kapasitas_persen, 1)}%) dan paling rendah di ${lo.provinsi} (${persen(lo.faktor_kapasitas_persen, 1)}%). Rata-rata nasional ${persen(NAS.faktor_kapasitas_persen, 1)}%.` + catatan;
+    $("note-kapasitas").textContent = `Paling terpakai: ${hi.provinsi}, ~${persen(hi.faktor_kapasitas_persen, 0)}%. Paling longgar: ${lo.provinsi}, ${persen(lo.faktor_kapasitas_persen, 0)}%.` + catatan;
   }
 }
 
@@ -361,8 +390,8 @@ function gambarRumahTangga() {
         {
           label: "Rentang desa sampai kota",
           data: rows.map((r) => (r.rumah_tangga_desa_persen == null ? null : [r.rumah_tangga_desa_persen, r.rumah_tangga_kota_persen])),
-          backgroundColor: rows.map((r) => (sorot(r) ? WARNA.kurang : "#E8C3B4")),
-          barPercentage: 0.28, borderSkipped: false, borderRadius: 2,
+          backgroundColor: rows.map((r) => (sorot(r) ? WARNA.kurang : "#F2B7A6")),
+          barPercentage: 0.28, borderSkipped: false, borderRadius: 0,
         },
         {
           label: "Total provinsi",
@@ -404,9 +433,7 @@ function gambarRumahTangga() {
       : `Di ${p.provinsi}, ${persen(p.rumah_tangga_kota_persen)}% rumah tangga kota dan ${persen(p.rumah_tangga_desa_persen)}% rumah tangga desa sudah berlistrik, selisih ${persen(p.selisih_kota_desa_poin)} poin.`;
   } else {
     const lebar = urutTurun(rows, "selisih_kota_desa_poin")[0];
-    const di = state.wilayah ? `Di ${state.wilayah}, k` : "K";
-    teks = `${di}esenjangan kota dan desa paling lebar ada di ${lebar.provinsi}: ${persen(lebar.rumah_tangga_kota_persen)}% di kota, ${persen(lebar.rumah_tangga_desa_persen)}% di desa.`;
-    if (rows.some((r) => r.rumah_tangga_desa_persen == null)) teks += " DKI Jakarta tidak punya angka perdesaan di sumber, jadi hanya titik totalnya yang tampil.";
+    teks = `${lebar.provinsi}: kota ${persen(lebar.rumah_tangga_kota_persen, 0)}%, desa ${persen(lebar.rumah_tangga_desa_persen, 0)}%.`;
   }
   $("note-rt").textContent = teks;
 }
@@ -454,7 +481,7 @@ function gambarSekolah() {
   } else if (!kosong) {
     const r = kurang[0];
     const jenis = r.sma_persen <= r.smk_persen ? ["SMA", r.sma_persen] : ["SMK", r.smk_persen];
-    teks = `${penuh} dari ${scope.length} provinsi sudah 100% untuk SMA dan SMK. Paling rendah ${jenis[0]} di ${r.provinsi}: ${persen(jenis[1], 1)}%.`;
+    teks = `${penuh} dari ${scope.length} provinsi sudah 100%. Terendah: ${jenis[0]} ${r.provinsi}, ${persen(jenis[1], 1)}%.`;
   } else {
     teks = "";
   }
@@ -463,5 +490,5 @@ function gambarSekolah() {
 
 mulai().catch((e) => {
   console.error(e);
-  $("headline").textContent = "Data belum bisa dimuat. Pastikan ETL sudah dijalankan lalu muat ulang halaman.";
+  $("hero-line").textContent = "Data belum bisa dimuat. Pastikan ETL sudah dijalankan lalu muat ulang halaman.";
 });

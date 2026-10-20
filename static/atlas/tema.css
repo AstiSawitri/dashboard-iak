@@ -1,87 +1,158 @@
-/* Penyelaras: komponen ARUS memakai token warna dan gaya web utama. */
+/* Penyelaras: komponen ARUS memakai gaya poster web utama
+   (kertas koran, tinta hitam, kuning rambu, oranye "panas" untuk yang kurang). */
 .arus {
   --bg: var(--paper);
-  --surface: #FFFFFF;
-  --surface-soft: var(--paper);
-  --ink: #182640;
+  --surface: var(--paper);
+  --surface-soft: var(--paper-2);
+  --ink: #121212;
   --muted: var(--ink-2);
-  --line: #D6DCE0;
-  --primary: #182640;
-  --primary-soft: var(--volt-soft);
-  --navy: #182640;
+  --line: #CFC7B8;
+  --primary: #121212;
+  --primary-soft: var(--volt);
+  --navy: #121212;
   --lime: var(--volt);
   --green: var(--good);
   --shadow: none;
-  --radius: 4px;
+  --radius: 0;
   background: transparent;
   color: var(--ink);
   font-family: "Montserrat", system-ui, sans-serif;
   font-size: 16px;
+  font-weight: 500;
   line-height: 1.55;
 }
-.arus .atlas-main { max-width: var(--maxw); margin: 0 auto; padding: 32px var(--gutter) 96px; outline: none; }
+.arus * { border-radius: 0 !important; box-shadow: none !important; }
+.arus .atlas-main { max-width: var(--maxw); margin: 0 auto; padding: 40px var(--gutter) 120px; outline: none; }
 
-/* label kecil berhuruf kapital tidak dipakai di web utama */
-.arus .eyebrow, .arus .section-kicker { display: none; }
+/* label kecil berhuruf kapital ARUS tidak dipakai */
+.arus .eyebrow, .arus .section-kicker, .arus .compare-card .pill { display: none; }
 
-/* judul halaman = gaya .h-page web utama */
-.arus .page-heading { align-items: flex-end; margin-bottom: 28px; }
-.arus .page-heading h1 { font-size: clamp(1.8rem, 3vw, 2.4rem); font-stretch: 112%; font-weight: 700; line-height: 1.1; letter-spacing: -0.015em; margin: 8px 0 12px; }
-.arus .page-heading h1 > span { display: none; }
-.arus .page-heading p { color: var(--ink-2); font-size: 16px; max-width: 62ch; margin: 0; }
-
-/* panel = kotak datar seperti .block-chart */
-.arus .panel, .arus .kpi, .arus .explore-workbench { border: 1px solid var(--line-2); border-radius: 4px; box-shadow: none; }
-.arus .panel-header h2, .arus .explore-topline h2, .arus .access-matrix-header h2 { font-size: 1.3rem; font-stretch: 108%; font-weight: 650; letter-spacing: -0.01em; }
-
-/* filter = gaya .controls web utama */
-.arus .filter-bar { background: transparent; border: 0; padding: 0; gap: 16px 32px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 36px; }
-.arus .filter-tag { display: none; }
-.arus .filter-select { flex-direction: column; align-items: flex-start; gap: 6px; font-size: 14px; color: var(--ink-2); }
-.arus .filter-select select, .arus .compare-controls select, .arus .mini-select, .arus .explore-chart-header select {
-  font: inherit; font-size: 15px; color: var(--ink); background: var(--surface);
-  border: 1px solid var(--ink-3); border-radius: 4px; min-height: 40px; padding: 8px 32px 8px 12px; max-width: none;
+/* judul halaman = judul poster */
+.arus .page-heading { align-items: flex-end; margin-bottom: 28px; gap: 24px; }
+.arus .page-heading h1 {
+  font-size: clamp(2.6rem, 8vw, 6.5rem); font-weight: 900; text-transform: uppercase;
+  line-height: .88; letter-spacing: -.045em; margin: 8px 0 16px;
 }
-.arus .mini-select { min-width: 0; font-size: 14px; min-height: 36px; padding: 6px 28px 6px 10px; }
-.arus .filter-select select { min-width: 220px; }
-.arus .filter-select select:hover, .arus .mini-select:hover { border-color: var(--ink); }
-.arus .search-box { border: 1px solid var(--ink-3); border-radius: 4px; min-height: 40px; }
-.arus .search-box input { font-size: 15px; min-height: 0; padding: 0; border: 0; }
+.arus .page-heading h1 > span { display: none; }
+.arus .page-heading p { color: var(--ink); font-size: 1.15rem; font-weight: 600; max-width: 52ch; margin: 0; }
+
+/* panel = blok tanpa kotak, dibuka garis hitam tebal */
+.arus .panel, .arus .explore-workbench {
+  background: transparent; border: 0; border-top: 6px solid var(--ink); overflow: visible;
+}
+.arus .panel-header, .arus .explore-topline, .arus .access-matrix-header { padding-left: 0; padding-right: 0; }
+.arus .panel-header h2, .arus .explore-topline h2, .arus .access-matrix-header h2 {
+  font-size: clamp(1.6rem, 3.4vw, 2.6rem); font-weight: 900; text-transform: uppercase;
+  letter-spacing: -.04em; line-height: .95;
+}
+.arus .panel-header p, .arus .explore-topline p, .arus .access-matrix-header p { color: var(--ink-2); font-size: 15px; font-weight: 600; }
+.arus .panel-footer, .arus .explore-chart-footer { border-top: 2px solid var(--ink); padding-left: 0; padding-right: 0; font-weight: 700; color: var(--ink); }
+
+/* filter */
+.arus .filter-bar { background: transparent; border: 0; padding: 0; gap: 14px 20px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 36px; }
+.arus .filter-tag { display: none; }
+.arus .filter-select { flex-direction: column; align-items: flex-start; gap: 4px; font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--ink); }
+.arus .filter-select select, .arus .compare-controls select, .arus .mini-select, .arus .explore-chart-header select {
+  font: inherit; font-size: 15px; font-weight: 600; text-transform: none; color: var(--ink);
+  background-color: var(--surface); border: 2px solid var(--ink); min-height: 44px; padding: 8px 40px 8px 12px; max-width: none;
+}
+.arus .mini-select { min-width: 0; font-size: 14px; min-height: 38px; }
+.arus .filter-select select { min-width: 230px; }
+.arus .coverage { font-weight: 800; text-transform: uppercase; font-size: 13px; }
+.arus .search-box { border: 2px solid var(--ink); background: var(--surface); min-height: 44px; }
+.arus .search-box input { font-size: 15px; font-weight: 600; min-height: 0; padding: 0; border: 0; background: none; }
+.arus .compare-controls { padding-left: 0; padding-right: 0; }
+.arus .compare-controls label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--ink); }
 
 /* tombol */
-.arus .btn { font: inherit; font-weight: 600; font-size: 15px; border-radius: 4px; min-height: 40px; padding: 0 18px; }
-.arus .btn.outline { background: var(--surface); color: var(--ink); border: 1px solid var(--ink); }
-.arus .btn.outline:hover { background: var(--volt-soft); }
-.arus .btn.primary { background: var(--ink); border-color: var(--ink); color: #fff; }
-.arus .text-button { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
-.arus .text-button:hover { text-decoration-color: var(--volt); text-decoration-thickness: 3px; }
+.arus .btn { font: inherit; font-weight: 800; text-transform: uppercase; font-size: 14px; min-height: 44px; padding: 0 18px; }
+.arus .btn.outline { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+.arus .btn.outline:hover, .arus .btn.primary:hover { background: var(--volt); color: var(--ink); transform: none; }
+.arus .btn.primary { background: var(--ink); border: 2px solid var(--ink); color: var(--volt); }
+.arus .text-button { color: var(--ink); font-weight: 800; text-transform: uppercase; font-size: 13px; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.arus .text-button:hover { background: var(--volt); }
+.arus .icon-button:hover { background: var(--volt); color: var(--ink); }
+.arus .pill { background: var(--ink); color: var(--paper); font-weight: 800; text-transform: uppercase; }
 
-/* tab indikator = gaya .seg-switch web utama */
+/* tab indikator = stempel */
+.arus .explore-metric-tabs button, .arus [data-explore-mode] {
+  border: 2px solid var(--ink); background: transparent; color: var(--ink); font-weight: 800; text-transform: uppercase;
+}
 .arus .explore-metric-tabs button[aria-pressed="true"], .arus .explore-metric-tabs .active,
-.arus [data-explore-mode][aria-pressed="true"], .arus [data-house].active { background: var(--ink); color: #fff; border-color: var(--ink); }
-
-/* batang & sorotan */
-.arus .explore-bar-row.selected { background: var(--volt-soft); }
-.arus .compare-card { border-top: 3px solid var(--ink); }
-.arus .compare-card:nth-child(2) { border-top-color: #6F87A5; }
-.arus .compare-card:nth-child(3) { border-top-color: var(--volt); }
-
-.arus .detail-dialog { border-radius: 4px; border-top: 4px solid var(--ink); }
-.arus .tooltip { border-radius: 3px; font-size: 14px; line-height: 1.4; }
-.arus .toast { border-radius: 4px; }
-.arus .icon-button { border-radius: 4px; }
-
-.atlas-boot { max-width: var(--maxw); margin: 0 auto; padding: 48px var(--gutter); color: var(--ink-2); }
-
-@media (max-width: 640px) {
-  .arus .filter-bar { flex-direction: column; align-items: stretch; gap: 16px; }
-  .arus .filter-select, .arus .filter-select select { width: 100%; min-width: 0; max-width: none; }
-  .arus .filter-tail { justify-content: space-between; }
-  .arus .page-heading { flex-direction: column; align-items: flex-start; }
+.arus [data-explore-mode][aria-pressed="true"], .arus [data-explore-mode].active, .arus [data-house].active {
+  background: var(--ink); color: var(--volt); border-color: var(--ink);
 }
 
-/* skala akses sama dengan peta Ringkasan: makin kurang makin merah, hampir penuh = abu biru muda */
-.arus .access-very-low, .arus i.access-very-low { background: #C2502E; color: #fff; }
-.arus .access-low, .arus i.access-low { background: #E59A6C; color: var(--ink); }
-.arus .access-mid, .arus i.access-mid { background: #F3D6C2; color: var(--ink); }
-.arus .access-high, .arus i.access-high { background: #DCE3EA; color: var(--ink); }
+/* ringkasan angka di eksplorasi */
+.arus .explore-summary { background: transparent; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.arus .explore-summary strong { font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 900; letter-spacing: -.04em; }
+.arus .explore-summary span { font-weight: 800; text-transform: uppercase; font-size: 12px; color: var(--ink); }
+
+/* batang peringkat */
+.arus .explore-bar-fill, .arus .bar-fill { background: var(--ink); }
+.arus .explore-bar-track, .arus .bar-track { background: var(--paper-2); }
+.arus .explore-bar-row.selected { background: var(--volt); }
+.arus .explore-bar-row.selected .explore-bar-fill { background: var(--hot); }
+.arus .explore-bar-name { font-weight: 700; }
+
+/* profil provinsi */
+.arus .explore-profile { background: var(--ink); color: var(--paper); border: 0; }
+.arus .explore-profile h3 { color: var(--volt); font-size: 2rem; font-weight: 900; text-transform: uppercase; letter-spacing: -.04em; line-height: .95; }
+.arus .explore-profile strong, .arus .explore-profile b { color: var(--paper); }
+.arus .explore-profile-focus strong { font-size: 2.4rem; font-weight: 900; letter-spacing: -.04em; color: var(--volt); }
+.arus .explore-profile span, .arus .explore-profile small, .arus .explore-profile p { color: #CFC9BC; }
+.arus .explore-profile .btn.primary { background: var(--volt); color: var(--ink); border-color: var(--volt); }
+.arus .explore-profile .explore-compare-button { color: var(--paper); }
+
+/* kartu perbandingan: kolom poster, angka besar */
+.arus .compare-cards { gap: 0; border-top: 6px solid var(--ink); }
+.arus .compare-card { background: transparent; border: 0 !important; border-right: 2px solid var(--ink) !important; padding: 24px 22px 24px 0; margin-right: 22px; }
+.arus .compare-card:last-child { border-right: 0 !important; margin-right: 0; }
+.arus .compare-card h2 { font-size: clamp(1.6rem, 2.6vw, 2.2rem); font-weight: 900; text-transform: uppercase; letter-spacing: -.04em; line-height: .95; margin-top: 0; }
+.arus .compare-card .region { font-weight: 700; color: var(--ink-2); }
+.arus .compare-card .big-number { font-size: clamp(3.4rem, 6vw, 5.6rem); font-weight: 900; letter-spacing: -.06em; line-height: .9; }
+.arus .compare-card .big-label { font-weight: 700; color: var(--ink); }
+
+/* tabel */
+.arus .data-table th { background: var(--ink); color: var(--paper); font-weight: 900; text-transform: uppercase; font-size: 12px; border: 0; }
+.arus .data-table th button:hover { color: var(--volt); }
+.arus .data-table td { border-bottom: 1px solid var(--line); }
+.arus .data-table tbody tr:hover { background: var(--volt-soft); }
+
+/* dialog, tooltip, toast */
+.arus .detail-dialog { border: 0; border-top: 8px solid var(--volt); background: var(--ink); color: var(--paper); }
+.arus .detail-dialog h2 { color: var(--volt); font-weight: 900; text-transform: uppercase; letter-spacing: -.04em; }
+.arus .detail-dialog::backdrop { background: rgba(18, 18, 18, .7); }
+.arus .detail-dialog .detail-metric { background: transparent; border: 1px solid #333; }
+.arus .detail-dialog .detail-metric strong, .arus .detail-dialog b { color: var(--paper); }
+.arus .detail-dialog p, .arus .detail-dialog span, .arus .detail-dialog small { color: #CFC9BC !important; }
+.arus .detail-dialog .icon-button { color: var(--paper); }
+.arus .tooltip { background: var(--volt); color: var(--ink); font-size: 14px; font-weight: 600; line-height: 1.4; }
+.arus .tooltip strong { color: var(--ink); font-weight: 900; }
+.arus .toast { background: var(--ink); color: var(--volt); font-weight: 800; }
+
+/* skala akses: makin kurang makin panas; penuh = tanpa warna */
+.arus .access-very-low, .arus i.access-very-low { background: #FF4B1F; color: #121212; }
+.arus .access-low, .arus i.access-low { background: #FF8A3D; color: #121212; }
+.arus .access-mid, .arus i.access-mid { background: #FFD60A; color: #121212; }
+.arus .access-high, .arus i.access-high { background: transparent; color: #121212; outline: 1px solid #CFC7B8; }
+.arus .access-region h3 { font-weight: 900; text-transform: uppercase; letter-spacing: -.02em; border-bottom: 2px solid var(--ink); }
+
+.arus .square { background: var(--ink); }
+
+.atlas-boot { max-width: var(--maxw); margin: 0 auto; padding: 48px var(--gutter); font-weight: 800; text-transform: uppercase; }
+
+@media (max-width: 760px) {
+  .arus .filter-bar { flex-direction: column; align-items: stretch; gap: 16px; }
+  .arus .filter-select, .arus .filter-select select { width: 100%; min-width: 0; }
+  .arus .filter-tail { justify-content: space-between; }
+  .arus .page-heading { flex-direction: column; align-items: flex-start; }
+  .arus .compare-card { border-right: 0 !important; margin-right: 0; border-bottom: 2px solid var(--ink) !important; }
+}
+
+/* teks di blok profil hitam */
+.arus .explore-profile, .arus .explore-profile *:not(.btn):not(.btn *):not(.icon) { color: var(--paper); }
+.arus .explore-profile h3, .arus .explore-profile-focus strong { color: var(--volt) !important; }
+.arus .explore-profile small, .arus .explore-profile-region { color: #CFC9BC !important; }
+.arus .explore-profile .btn.primary, .arus .explore-profile .btn.primary * { color: var(--ink); }
+.arus .compare-card .big-number { margin-bottom: 12px; }

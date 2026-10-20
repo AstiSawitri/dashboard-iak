@@ -5,27 +5,29 @@
 {% block content %}
 <main class="auth">
   <section class="auth-intro">
+    <h1>Listrik<span>Indonesia</span></h1>
+    <p>Buat akun untuk membuka dasbor. Kata sandi disimpan dalam bentuk hash, bukan teks asli.</p>
     {{ mark('mark-lg') }}
-    <h1>Dasbor Energi Indonesia</h1>
-    <p>Buat akun untuk melihat dasbor. Kata sandi disimpan dalam bentuk hash, bukan teks asli.</p>
   </section>
 
-  <form class="auth-form" method="post" novalidate>
-    <h2>Buat akun</h2>
-    {% with msgs = get_flashed_messages() %}
-      {% for m in msgs %}<p class="flash" role="alert">{{ m }}</p>{% endfor %}
-    {% endwith %}
-    <label>Nama
-      <input name="nama" autocomplete="name" required autofocus>
-    </label>
-    <label>Username
-      <input name="username" autocomplete="username" required>
-    </label>
-    <label>Kata sandi <span class="hint">minimal 6 karakter</span>
-      <input name="password" type="password" autocomplete="new-password" minlength="6" required>
-    </label>
-    <button class="btn" type="submit">Buat akun</button>
-    <p class="auth-alt">Sudah punya akun? <a href="{{ url_for('login') }}">Masuk</a></p>
-  </form>
+  <div class="auth-side">
+    <form class="auth-form" method="post" novalidate>
+      <h2>Buat akun</h2>
+      {% with msgs = get_flashed_messages() %}
+        {% for m in msgs %}<p class="flash" role="alert">{{ m }}</p>{% endfor %}
+      {% endwith %}
+      <label>Nama
+        <input name="nama" autocomplete="name" required autofocus>
+      </label>
+      <label>Username
+        <input name="username" autocomplete="username" required>
+      </label>
+      <label>Kata sandi <span class="hint">minimal 6 karakter</span>
+        <input name="password" type="password" autocomplete="new-password" minlength="6" required>
+      </label>
+      <button class="btn" type="submit">Buat akun</button>
+      <p class="auth-alt">Sudah punya akun? <a href="{{ url_for('login') }}">Masuk</a></p>
+    </form>
+  </div>
 </main>
 {% endblock %}

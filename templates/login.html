@@ -5,26 +5,35 @@
 {% block content %}
 <main class="auth">
   <section class="auth-intro">
+    <h1>Listrik<span>Indonesia</span></h1>
+    <div>
+      <p>Siapa yang sudah terang, siapa yang belum. Produksi dan kapasitas listrik, rumah tangga berlistrik, serta SMA dan SMK berlistrik di 38 provinsi.</p>
+      <ul class="auth-count" style="margin-top:28px">
+        <li><b>38</b>provinsi</li>
+        <li><b>5</b>dataset</li>
+        <li><b>3</b>format sumber</li>
+      </ul>
+    </div>
     {{ mark('mark-lg') }}
-    <h1>Dasbor Energi Indonesia</h1>
-    <p>Produksi dan kapasitas listrik, rumah tangga berlistrik, serta sekolah berlistrik di 38 provinsi, dalam satu tempat.</p>
   </section>
 
-  <form class="auth-form" method="post" novalidate>
-    <h2>Masuk</h2>
-    {% with msgs = get_flashed_messages() %}
-      {% for m in msgs %}<p class="flash" role="alert">{{ m }}</p>{% endfor %}
-    {% endwith %}
-    <label>Username
-      <input name="username" autocomplete="username" required autofocus>
-    </label>
-    <label>Kata sandi
-      <input name="password" type="password" autocomplete="current-password" required>
-    </label>
-    <button class="btn" type="submit">Masuk</button>
-    {% if allow_register %}
-    <p class="auth-alt">Belum punya akun? <a href="{{ url_for('register') }}">Buat akun</a></p>
-    {% endif %}
-  </form>
+  <div class="auth-side">
+    <form class="auth-form" method="post" novalidate>
+      <h2>Masuk</h2>
+      {% with msgs = get_flashed_messages() %}
+        {% for m in msgs %}<p class="flash" role="alert">{{ m }}</p>{% endfor %}
+      {% endwith %}
+      <label>Username
+        <input name="username" autocomplete="username" required autofocus>
+      </label>
+      <label>Kata sandi
+        <input name="password" type="password" autocomplete="current-password" required>
+      </label>
+      <button class="btn" type="submit">Masuk</button>
+      {% if allow_register %}
+      <p class="auth-alt">Belum punya akun? <a href="{{ url_for('register') }}">Buat akun</a></p>
+      {% endif %}
+    </form>
+  </div>
 </main>
 {% endblock %}
