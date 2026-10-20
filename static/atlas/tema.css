@@ -1,0 +1,87 @@
+/* Penyelaras: komponen ARUS memakai token warna dan gaya web utama. */
+.arus {
+  --bg: var(--paper);
+  --surface: #FFFFFF;
+  --surface-soft: var(--paper);
+  --ink: #182640;
+  --muted: var(--ink-2);
+  --line: #D6DCE0;
+  --primary: #182640;
+  --primary-soft: var(--volt-soft);
+  --navy: #182640;
+  --lime: var(--volt);
+  --green: var(--good);
+  --shadow: none;
+  --radius: 4px;
+  background: transparent;
+  color: var(--ink);
+  font-family: "Archivo", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+.arus .atlas-main { max-width: var(--maxw); margin: 0 auto; padding: 32px var(--gutter) 96px; outline: none; }
+
+/* label kecil berhuruf kapital tidak dipakai di web utama */
+.arus .eyebrow, .arus .section-kicker { display: none; }
+
+/* judul halaman = gaya .h-page web utama */
+.arus .page-heading { align-items: flex-end; margin-bottom: 28px; }
+.arus .page-heading h1 { font-size: clamp(1.8rem, 3vw, 2.4rem); font-stretch: 112%; font-weight: 700; line-height: 1.1; letter-spacing: -0.015em; margin: 8px 0 12px; }
+.arus .page-heading h1 > span { display: none; }
+.arus .page-heading p { color: var(--ink-2); font-size: 16px; max-width: 62ch; margin: 0; }
+
+/* panel = kotak datar seperti .block-chart */
+.arus .panel, .arus .kpi, .arus .explore-workbench { border: 1px solid var(--line-2); border-radius: 4px; box-shadow: none; }
+.arus .panel-header h2, .arus .explore-topline h2, .arus .access-matrix-header h2 { font-size: 1.3rem; font-stretch: 108%; font-weight: 650; letter-spacing: -0.01em; }
+
+/* filter = gaya .controls web utama */
+.arus .filter-bar { background: transparent; border: 0; padding: 0; gap: 16px 32px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 36px; }
+.arus .filter-tag { display: none; }
+.arus .filter-select { flex-direction: column; align-items: flex-start; gap: 6px; font-size: 14px; color: var(--ink-2); }
+.arus .filter-select select, .arus .compare-controls select, .arus .mini-select, .arus .explore-chart-header select {
+  font: inherit; font-size: 15px; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--ink-3); border-radius: 4px; min-height: 40px; padding: 8px 32px 8px 12px; max-width: none;
+}
+.arus .mini-select { min-width: 0; font-size: 14px; min-height: 36px; padding: 6px 28px 6px 10px; }
+.arus .filter-select select { min-width: 220px; }
+.arus .filter-select select:hover, .arus .mini-select:hover { border-color: var(--ink); }
+.arus .search-box { border: 1px solid var(--ink-3); border-radius: 4px; min-height: 40px; }
+.arus .search-box input { font-size: 15px; min-height: 0; padding: 0; border: 0; }
+
+/* tombol */
+.arus .btn { font: inherit; font-weight: 600; font-size: 15px; border-radius: 4px; min-height: 40px; padding: 0 18px; }
+.arus .btn.outline { background: var(--surface); color: var(--ink); border: 1px solid var(--ink); }
+.arus .btn.outline:hover { background: var(--volt-soft); }
+.arus .btn.primary { background: var(--ink); border-color: var(--ink); color: #fff; }
+.arus .text-button { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.arus .text-button:hover { text-decoration-color: var(--volt); text-decoration-thickness: 3px; }
+
+/* tab indikator = gaya .seg-switch web utama */
+.arus .explore-metric-tabs button[aria-pressed="true"], .arus .explore-metric-tabs .active,
+.arus [data-explore-mode][aria-pressed="true"], .arus [data-house].active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+/* batang & sorotan */
+.arus .explore-bar-row.selected { background: var(--volt-soft); }
+.arus .compare-card { border-top: 3px solid var(--ink); }
+.arus .compare-card:nth-child(2) { border-top-color: #6F87A5; }
+.arus .compare-card:nth-child(3) { border-top-color: var(--volt); }
+
+.arus .detail-dialog { border-radius: 4px; border-top: 4px solid var(--ink); }
+.arus .tooltip { border-radius: 3px; font-size: 14px; line-height: 1.4; }
+.arus .toast { border-radius: 4px; }
+.arus .icon-button { border-radius: 4px; }
+
+.atlas-boot { max-width: var(--maxw); margin: 0 auto; padding: 48px var(--gutter); color: var(--ink-2); }
+
+@media (max-width: 640px) {
+  .arus .filter-bar { flex-direction: column; align-items: stretch; gap: 16px; }
+  .arus .filter-select, .arus .filter-select select { width: 100%; min-width: 0; max-width: none; }
+  .arus .filter-tail { justify-content: space-between; }
+  .arus .page-heading { flex-direction: column; align-items: flex-start; }
+}
+
+/* skala akses sama dengan peta Ringkasan: makin kurang makin merah, hampir penuh = abu biru muda */
+.arus .access-very-low, .arus i.access-very-low { background: #C2502E; color: #fff; }
+.arus .access-low, .arus i.access-low { background: #E59A6C; color: var(--ink); }
+.arus .access-mid, .arus i.access-mid { background: #F3D6C2; color: var(--ink); }
+.arus .access-high, .arus i.access-high { background: #DCE3EA; color: var(--ink); }

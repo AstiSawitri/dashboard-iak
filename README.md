@@ -5,6 +5,13 @@ Fitur: login, peta 38 provinsi, eksplorasi dan visualisasi 5 dataset kelistrikan
 berlistrik, produksi listrik, kapasitas pembangkit, SMA dan SMK berlistrik), filter wilayah dan
 provinsi, halaman sumber data, dan unduh CSV.
 
+Menu: **Ringkasan** (`/dasbor`), **Eksplorasi provinsi** (`/atlas#explore`), **Bandingkan**
+(`/atlas#compare`), **Data dan sumber** (`/data`). Eksplorasi dan Bandingkan adalah dashboard ARUS
+buatan anggota kelompok, dipasang di kerangka web ini dan mengambil data dari `/atlas/api/data`.
+Tampilannya diselaraskan: `tools/samakan_atlas.py` mengubah CSS asli ARUS
+(`data/arus_styles_asli.css`) jadi `static/atlas/styles.css` (dibatasi ke `.arus`, palet dan font
+web utama), lalu `static/atlas/tema.css` merapikan sisanya.
+
 ## Arsitektur
 
 ```
@@ -36,6 +43,7 @@ dashboard-energi/
 ├── seed.py           # buat tabel + akun demo
 ├── etl_lokal.py      # ETL Python dari data/mentah (cadangan/pembanding Pentaho)
 ├── buat_peta.py      # ubah GeoJSON jadi static/peta.json (sekali saja)
+├── tools/samakan_atlas.py  # selaraskan CSS ARUS dengan tampilan web utama
 ├── data/mentah/      # 5 file asli
 ├── data/peta/        # GeoJSON 38 provinsi + lisensinya
 ├── requirements.txt

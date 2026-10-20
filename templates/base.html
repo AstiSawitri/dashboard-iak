@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&display=swap" rel="stylesheet">
+  {% block head_pre %}{% endblock %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   {% block head %}{% endblock %}
 </head>
@@ -18,7 +19,8 @@
   <a class="brand" href="{{ url_for('dashboard') }}">{{ mark() }}<span>Dasbor Energi Indonesia</span></a>
   <nav class="nav" aria-label="Halaman">
     <a href="{{ url_for('dashboard') }}" {% if page == 'dasbor' %}aria-current="page"{% endif %}>Ringkasan</a>
-    <a href="{{ url_for('atlas') }}">Atlas provinsi</a>
+    <a href="{{ url_for('atlas') }}#explore" data-atlas="explore">Eksplorasi provinsi</a>
+    <a href="{{ url_for('atlas') }}#compare" data-atlas="compare">Bandingkan</a>
     <a href="{{ url_for('data_page') }}" {% if page == 'data' %}aria-current="page"{% endif %}>Data dan sumber</a>
   </nav>
   <div class="who">
