@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Data dan sumber - Dasbor Energi Indonesia{% endblock %}
+{% block content %}
+<main class="page">
+  <h1 class="h-page">Data dan sumber</h1>
+  <p class="lede">Lima dataset yang dipakai dasbor, dari mana asalnya, dan dalam format apa file aslinya sebelum diproses ETL. Kelimanya digabung per provinsi lewat kode wilayah BPS.</p>
+
+  <div class="table-wrap">
+    <table class="t" id="t-sumber">
+      <thead>
+        <tr><th scope="col">Dataset</th><th scope="col">Format asal</th><th scope="col">Sumber</th><th scope="col" class="r">Tahun data</th><th scope="col" class="r">Baris di database</th></tr>
+      </thead>
+      <tbody><tr><td colspan="5">Memuat…</td></tr></tbody>
+    </table>
+  </div>
+
+  <h2 class="h-sub">Lihat isi tabel</h2>
+  <div class="controls">
+    <label class="control">
+      <span class="control-label">Dataset</span>
+      <select id="ds">
+        {% for key, d in datasets.items() %}<option value="{{ key }}">{{ d.judul }}</option>{% endfor %}
+      </select>
+    </label>
+    <label class="control">
+      <span class="control-label">Wilayah</span>
+      <select id="ds-wilayah"><option value="">Seluruh Indonesia</option></select>
+    </label>
+    <label class="control check">
+      <input type="checkbox" id="ds-nasional"> <span>Sertakan baris nasional</span>
+    </label>
+    <a class="btn btn-line" id="ds-csv" href="#">Unduh CSV</a>
+  </div>
+
+  <div class="table-wrap">
+    <table class="t" id="t-isi"><thead></thead><tbody></tbody></table>
+  </div>
+  <p class="count" id="ds-count"></p>
+
+  <h2 class="h-sub">Cara membaca data ini</h2>
+  <ul class="method">
+    <li>Produksi, kapasitas, dan rumah tangga memakai data 2024. Data SMA dan SMK adalah tahun 2023, sesuai judul di dalam file, meskipun nama filenya menyebut 2024.</li>
+    <li>Indikator rumah tangga mengukur sumber penerangan utama dari listrik. Ini bukan ukuran kapasitas, konsumsi, atau keandalan listrik.</li>
+    <li>Angka perdesaan DKI Jakarta tidak ada di sumber. Nilainya disimpan kosong, bukan nol, dan perbandingan kota dan desa hanya memakai provinsi yang punya kedua angka.</li>
+    <li>Angka Indonesia diambil dari baris INDONESIA di tiap sumber. Untuk satu wilayah, produksi dan kapasitas boleh dijumlahkan, tetapi persentase tidak dirata-rata karena tidak ada jumlah rumah tangga atau sekolah sebagai bobot.</li>
+    <li>Data sekolah memakai kolom Total dari sumber dan kode BPS, bukan kode Kemendagri (keduanya berbeda untuk provinsi di Papua). Baris Luar Negeri dibuang.</li>
+    <li>Faktor kapasitas adalah perkiraan: produksi dibagi kapasitas dikali 8.760 jam. Listrik bisa disalurkan antarprovinsi dan sebagian pembangkit hanya cadangan, jadi jangan dibaca sebagai surplus atau defisit.</li>
+    <li>Setiap indikator hanya punya satu periode, jadi tren antartahun belum bisa dihitung.</li>
+  </ul>
+  <p class="count">Sebagian catatan ini diadaptasi dari analisis anggota kelompok pada prototipe ARUS.</p>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<script src="{{ url_for('static', filename='js/data.js') }}"></script>
+{% endblock %}

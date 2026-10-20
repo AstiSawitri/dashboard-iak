@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import mark %}
+{% block title %}Masuk - Dasbor Energi Indonesia{% endblock %}
+{% block body_class %}page-auth{% endblock %}
+{% block content %}
+<main class="auth">
+  <section class="auth-intro">
+    {{ mark('mark-lg') }}
+    <h1>Dasbor Energi Indonesia</h1>
+    <p>Produksi dan kapasitas listrik, rumah tangga berlistrik, serta sekolah berlistrik di 38 provinsi, dalam satu tempat.</p>
+  </section>
+
+  <form class="auth-form" method="post" novalidate>
+    <h2>Masuk</h2>
+    {% with msgs = get_flashed_messages() %}
+      {% for m in msgs %}<p class="flash" role="alert">{{ m }}</p>{% endfor %}
+    {% endwith %}
+    <label>Username
+      <input name="username" autocomplete="username" required autofocus>
+    </label>
+    <label>Kata sandi
+      <input name="password" type="password" autocomplete="current-password" required>
+    </label>
+    <button class="btn" type="submit">Masuk</button>
+    {% if allow_register %}
+    <p class="auth-alt">Belum punya akun? <a href="{{ url_for('register') }}">Buat akun</a></p>
+    {% endif %}
+  </form>
+</main>
+{% endblock %}

@@ -1,0 +1,276 @@
+/* Dasbor Energi Indonesia
+   Warna diambil dari dunia kelistrikan: tinta biru tua seperti tiang & kabel,
+   kuning rambu "awas tegangan tinggi" sebagai satu-satunya aksen,
+   dan satu warna tetap untuk tiap sumber energi (dipakai konsisten di semua grafik). */
+
+:root {
+  --paper: #F2F4F3;
+  --surface: #FFFFFF;
+  --ink: #182640;
+  --ink-2: #4D5A70;
+  --ink-3: #7E899B;
+  --line: #D6DCE0;
+  --line-2: #E6EAEC;
+  --volt: #F2C014;
+  --volt-soft: #FBEFB8;
+  --bad: #A83A1F;
+  --good: #2D6B4A;
+
+  /* warna sumber energi */
+  --f-batubara: #3E3A37;
+  --f-gas: #8EA3B8;
+  --f-minyak: #8C5A3C;
+  --f-air: #2F6DB5;
+  --f-panasbumi: #C2502E;
+  --f-bioenergi: #5E8C3A;
+  --f-surya: #E3A80B;
+  --f-angin: #55A9AB;
+
+  --radius: 4px;
+  --gutter: clamp(16px, 4vw, 48px);
+  --maxw: 1240px;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Archivo", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  font-stretch: 100%;
+}
+a { color: var(--ink); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { text-decoration-color: var(--volt); text-decoration-thickness: 3px; }
+:focus-visible { outline: 3px solid var(--volt); outline-offset: 2px; box-shadow: 0 0 0 5px var(--ink); border-radius: 2px; }
+[hidden] { display: none !important; }
+
+/* ---------- penanda merek: bauran energi mini ---------- */
+.mark { display: inline-flex; width: 64px; height: 10px; gap: 1px; flex: none; }
+.mark i { display: block; flex: var(--w) 1 0; background: var(--c); min-width: 2px; }
+.mark-lg { width: 100%; max-width: 420px; height: 16px; gap: 2px; }
+
+/* ---------- topbar ---------- */
+.topbar {
+  display: flex; align-items: center; gap: 32px;
+  padding: 0 var(--gutter);
+  height: 60px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 700; font-stretch: 112%; letter-spacing: -0.01em; }
+.nav { display: flex; gap: 4px; height: 100%; }
+.nav a {
+  display: flex; align-items: center; padding: 0 12px;
+  text-decoration: none; color: var(--ink-2);
+  border-bottom: 3px solid transparent; margin-bottom: -1px;
+}
+.nav a:hover { color: var(--ink); }
+.nav a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--volt); font-weight: 600; }
+.who { margin-left: auto; display: flex; align-items: center; gap: 16px; color: var(--ink-2); font-size: 15px; }
+.btn-quiet { color: var(--ink-2); }
+
+.dummy-note {
+  background: var(--volt); color: var(--ink);
+  padding: 8px var(--gutter); font-size: 14px; font-weight: 500;
+}
+
+/* ---------- layout halaman ---------- */
+.page { max-width: var(--maxw); margin: 0 auto; padding: 32px var(--gutter) 96px; }
+.page.narrow { max-width: 720px; padding-top: 96px; }
+.h-page { font-size: clamp(1.8rem, 3vw, 2.4rem); font-stretch: 112%; font-weight: 700; line-height: 1.1; letter-spacing: -0.015em; margin: 8px 0 12px; }
+.h-sub { font-size: 1.25rem; font-stretch: 108%; font-weight: 650; margin: 56px 0 16px; }
+.lede { color: var(--ink-2); max-width: 62ch; margin: 0 0 28px; }
+
+/* ---------- filter ---------- */
+.controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 32px; margin-bottom: 36px; }
+.control { display: flex; flex-direction: column; gap: 6px; }
+.control-label { font-size: 14px; color: var(--ink-2); }
+.years { display: flex; flex-wrap: wrap; border: 1px solid var(--ink); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
+.years button {
+  font: inherit; font-variant-numeric: tabular-nums; font-weight: 500;
+  border: 0; border-right: 1px solid var(--line); background: transparent; color: var(--ink);
+  padding: 7px 14px; cursor: pointer;
+}
+.years button:last-child { border-right: 0; }
+.years button:hover { background: var(--volt-soft); }
+.years button[aria-checked="true"] { background: var(--ink); color: #fff; }
+select, input {
+  font: inherit; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--ink-3); border-radius: var(--radius);
+  padding: 8px 12px; min-height: 40px;
+}
+select { padding-right: 32px; min-width: 220px; }
+select:hover, input:hover { border-color: var(--ink); }
+
+.btn {
+  font: inherit; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 0 22px;
+  background: var(--ink); color: #fff; border: 1px solid var(--ink); border-radius: var(--radius);
+  text-decoration: none;
+}
+.btn:hover { background: #22345A; text-decoration: none; }
+.btn-line { background: var(--surface); color: var(--ink); min-height: 40px; }
+.btn-line:hover { background: var(--volt-soft); }
+
+/* ---------- hero: bauran energi ---------- */
+.hero { padding-bottom: 40px; }
+.headline {
+  font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+  font-stretch: 116%;
+  font-weight: 680;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  max-width: 30ch;
+  margin: 0 0 24px;
+  text-wrap: balance;
+}
+.mix { display: flex; height: 56px; gap: 2px; background: var(--paper); }
+.mix .seg {
+  position: relative; min-width: 3px;
+  background: var(--c);
+  transition: flex-grow .6s cubic-bezier(.2,.7,.2,1);
+}
+.mix .seg span {
+  position: absolute; left: 10px; bottom: 8px;
+  color: #fff; font-weight: 600; font-size: 15px; font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.mix .seg.light span { color: var(--ink); }
+.mix-legend { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 14px; color: var(--ink-2); }
+.mix-legend li { display: flex; align-items: center; gap: 7px; }
+.mix-legend b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.sw { width: 12px; height: 12px; background: var(--c); flex: none; }
+
+.figures {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  margin: 40px 0 0; border-top: 2px solid var(--ink);
+}
+.figure { padding: 16px 20px 4px 0; margin-right: 20px; border-right: 1px solid var(--line); }
+.figure:last-child { border-right: 0; margin-right: 0; }
+.figure dt { font-size: 14px; color: var(--ink-2); margin-bottom: 6px; }
+.figure dd { margin: 0; }
+.figure .num { font-size: clamp(1.6rem, 2.4vw, 2.1rem); font-weight: 650; font-stretch: 92%; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.figure .unit { color: var(--ink-2); font-size: 15px; }
+.delta { font-size: 14px; color: var(--ink-2); font-variant-numeric: tabular-nums; margin-top: 2px !important; }
+.delta.up { color: var(--good); }
+.delta.down { color: var(--bad); }
+
+/* ---------- peta ---------- */
+.map-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; margin-bottom: 12px; }
+.seg-switch { display: flex; flex-wrap: wrap; border: 1px solid var(--ink); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
+.seg-switch button {
+  font: inherit; font-size: 14px; font-weight: 500; cursor: pointer;
+  border: 0; border-right: 1px solid var(--line); background: transparent; color: var(--ink); padding: 7px 12px;
+}
+.seg-switch button:last-child { border-right: 0; }
+.seg-switch button:hover { background: var(--volt-soft); }
+.seg-switch button[aria-checked="true"] { background: var(--ink); color: #fff; }
+.map-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--ink-2); }
+.map-legend li { display: flex; align-items: center; gap: 6px; }
+.map { position: relative; margin: 0; background: var(--surface); border: 1px solid var(--line-2); padding: 12px 12px 8px; }
+.map svg { display: block; width: 100%; height: auto; }
+.map path { stroke: #fff; stroke-width: 0.7; stroke-linejoin: round; cursor: pointer; transition: opacity .2s; }
+.map path:hover, .map path:focus-visible { stroke: var(--ink); stroke-width: 1.4; outline: none; }
+.map path.luar { opacity: .22; }
+.map path.aktif { stroke: var(--ink); stroke-width: 2.2; }
+.map-tip {
+  position: absolute; pointer-events: none; z-index: 2; max-width: 220px;
+  background: var(--ink); color: #fff; font-size: 14px; line-height: 1.4; padding: 8px 10px; border-radius: 3px;
+}
+.credit { font-size: 12.5px; color: var(--ink-3); margin-top: 6px; }
+.credit a { color: var(--ink-2); }
+.scope { font-size: 14px; color: var(--ink-2); margin: 14px 0 0; max-width: 80ch; }
+.reset { font: inherit; background: none; border: 0; padding: 8px 0; text-decoration: underline; cursor: pointer; align-self: flex-end; }
+.empty { margin: 0; padding: 24px; color: var(--ink-2); }
+
+/* ---------- blok per dataset ---------- */
+.block {
+  display: grid; grid-template-columns: minmax(240px, 1fr) 2fr; gap: 40px;
+  padding: 40px 0;
+  border-top: 1px solid var(--line);
+}
+.block h2 { font-size: 1.3rem; font-stretch: 108%; font-weight: 650; line-height: 1.2; margin: 0 0 10px; letter-spacing: -0.01em; }
+.block .desc { color: var(--ink-2); margin: 0 0 16px; max-width: 46ch; }
+.note { margin: 0 0 16px; padding-left: 14px; border-left: 3px solid var(--volt); max-width: 46ch; }
+.note:empty { display: none; }
+.src { font-size: 14px; color: var(--ink-2); margin: 0; }
+.fmt {
+  display: inline-block; font-size: 12px; font-weight: 650; letter-spacing: .02em;
+  padding: 1px 6px; border: 1px solid var(--ink-3); border-radius: 3px; color: var(--ink);
+  vertical-align: 1px; margin-left: 4px;
+}
+.block-chart { position: relative; height: 340px; min-width: 0; background: var(--surface); border: 1px solid var(--line-2); padding: 16px; }
+.block-chart.tall { height: 420px; }
+.block-chart:has(.empty:not([hidden])) { height: auto !important; }
+
+/* ---------- tabel ---------- */
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); }
+.t { width: 100%; border-collapse: collapse; font-size: 15px; }
+.t th, .t td { text-align: left; padding: 10px 16px; border-bottom: 1px solid var(--line-2); white-space: nowrap; }
+.t thead th { font-weight: 600; color: var(--ink-2); background: var(--paper); border-bottom: 1px solid var(--line); }
+.t td.r, .t th.r { text-align: right; font-variant-numeric: tabular-nums; }
+.t tbody tr:hover td { background: #FAFBFB; }
+.t td small { color: var(--ink-3); display: block; }
+.count { font-size: 14px; color: var(--ink-2); }
+
+/* ---------- halaman masuk ---------- */
+.page-auth { min-height: 100vh; }
+.auth {
+  min-height: 100vh; max-width: var(--maxw); margin: 0 auto;
+  display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; gap: 64px;
+  padding: 48px var(--gutter);
+}
+.auth-intro h1 {
+  font-size: clamp(2.2rem, 5vw, 4rem); font-stretch: 120%; font-weight: 720;
+  line-height: 1; letter-spacing: -0.025em; margin: 28px 0 20px; max-width: 12ch;
+}
+.auth-intro p { color: var(--ink-2); font-size: 1.1rem; max-width: 40ch; margin: 0; }
+.auth-form {
+  background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--ink);
+  padding: 32px; display: flex; flex-direction: column; gap: 18px; max-width: 420px; width: 100%;
+}
+.auth-form h2 { margin: 0; font-size: 1.4rem; font-stretch: 110%; font-weight: 650; }
+.auth-form label { display: flex; flex-direction: column; gap: 6px; font-size: 15px; font-weight: 500; }
+.auth-form .hint { font-weight: 400; color: var(--ink-3); font-size: 14px; }
+.auth-form .btn { margin-top: 6px; }
+.auth-alt { margin: 0; font-size: 15px; color: var(--ink-2); }
+.flash { margin: 0; padding: 10px 12px; background: #FBE9E4; border-left: 3px solid var(--bad); font-size: 15px; }
+
+/* ---------- responsif ---------- */
+@media (max-width: 900px) {
+  .block { grid-template-columns: 1fr; gap: 20px; }
+  .figures { grid-template-columns: repeat(2, 1fr); }
+  .figure:nth-child(2) { border-right: 0; margin-right: 0; }
+  .figure:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .auth { grid-template-columns: 1fr; gap: 32px; align-content: center; }
+}
+@media (max-width: 640px) {
+  .topbar { gap: 12px; height: auto; flex-wrap: wrap; padding-top: 12px; }
+  .brand span { font-size: 15px; }
+  .nav { order: 3; width: 100%; height: 44px; }
+  .who-name { display: none; }
+  .mix { height: 44px; }
+  .mix .seg span { display: none; }
+  .block-chart { height: 280px; padding: 8px; }
+  .block-chart.tall { height: 380px; }
+  select { min-width: 0; width: 100%; }
+  .control { width: 100%; }
+  .years { flex-wrap: nowrap; overflow-x: auto; }
+  .years button { flex: 1 0 auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mix .seg { transition: none; }
+}
+
+/* ---------- halaman data ---------- */
+.control.check { flex-direction: row; align-items: center; gap: 8px; min-height: 40px; font-size: 15px; }
+.control.check input { min-height: 0; width: 18px; height: 18px; accent-color: var(--ink); }
+.method { max-width: 72ch; padding-left: 20px; margin: 0 0 12px; }
+.method li { margin-bottom: 8px; }
+#t-sumber td { white-space: normal; vertical-align: top; }
+#t-sumber td:first-child { min-width: 260px; }
+#t-sumber td:nth-child(3) { min-width: 200px; }
