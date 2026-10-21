@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Data dan sumber - Dasbor Energi Indonesia{% endblock %}
+{% block title %}Data dan sumber - ARUS{% endblock %}
 {% block content %}
 <main class="page">
   <h1 class="h-page">Data dan sumber</h1>
@@ -11,6 +11,24 @@
         <tr><th scope="col">Dataset</th><th scope="col">Format asal</th><th scope="col">Sumber</th><th scope="col" class="r">Tahun data</th><th scope="col" class="r">Baris di database</th></tr>
       </thead>
       <tbody><tr><td colspan="5">Memuat…</td></tr></tbody>
+    </table>
+  </div>
+
+  <h2 class="h-sub">Tiga level data</h2>
+  <p class="lede">File sumber disalin apa adanya ke tabel <b>staging</b> (duplikasi), diseragamkan ke tabel <b>integrasi</b> (transformasi), lalu digabung dalam view <b>presentasi</b> yang dibaca dasbor. Tiap sinkronisasi dicatat di bawah.</p>
+  <div class="table-wrap">
+    <table class="t" id="t-level">
+      <thead><tr><th scope="col">Dataset</th><th scope="col" class="r">1. Staging<br><small>baris mentah</small></th><th scope="col" class="r">2. Integrasi<br><small>baris bersih</small></th><th scope="col">3. Presentasi</th></tr></thead>
+      <tbody><tr><td colspan="4">Memuat…</td></tr></tbody>
+    </table>
+  </div>
+  <p class="count" id="sinkron-terakhir"></p>
+
+  <h2 class="h-sub">Riwayat sinkronisasi</h2>
+  <div class="table-wrap">
+    <table class="t" id="t-log">
+      <thead><tr><th scope="col">Waktu</th><th scope="col">Batch</th><th scope="col">Level</th><th scope="col">Dataset</th><th scope="col" class="r">Baris</th><th scope="col">Status</th><th scope="col">Hash file</th></tr></thead>
+      <tbody><tr><td colspan="7">Memuat…</td></tr></tbody>
     </table>
   </div>
 

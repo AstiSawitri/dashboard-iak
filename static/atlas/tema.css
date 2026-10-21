@@ -17,7 +17,7 @@
   background: transparent;
   color: var(--ink);
   font-family: "Montserrat", system-ui, sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
   line-height: 1.55;
 }
@@ -30,11 +30,11 @@
 /* judul halaman = judul poster */
 .arus .page-heading { align-items: flex-end; margin-bottom: 28px; gap: 24px; }
 .arus .page-heading h1 {
-  font-size: clamp(2.6rem, 8vw, 6.5rem); font-weight: 900; text-transform: uppercase;
-  line-height: .88; letter-spacing: -.045em; margin: 8px 0 16px;
+  font-size: clamp(2.2rem, 6vw, 5rem); font-weight: 900; text-transform: uppercase;
+  line-height: .9; letter-spacing: -.045em; margin: 8px 0 16px;
 }
 .arus .page-heading h1 > span { display: none; }
-.arus .page-heading p { color: var(--ink); font-size: 1.15rem; font-weight: 600; max-width: 52ch; margin: 0; }
+.arus .page-heading p { color: var(--ink); font-size: 1.05rem; font-weight: 600; max-width: 52ch; margin: 0; }
 
 /* panel = blok tanpa kotak, dibuka garis hitam tebal */
 .arus .panel, .arus .explore-workbench {
@@ -42,7 +42,7 @@
 }
 .arus .panel-header, .arus .explore-topline, .arus .access-matrix-header { padding-left: 0; padding-right: 0; }
 .arus .panel-header h2, .arus .explore-topline h2, .arus .access-matrix-header h2 {
-  font-size: clamp(1.6rem, 3.4vw, 2.6rem); font-weight: 900; text-transform: uppercase;
+  font-size: clamp(1.35rem, 2.6vw, 2.1rem); font-weight: 900; text-transform: uppercase;
   letter-spacing: -.04em; line-height: .95;
 }
 .arus .panel-header p, .arus .explore-topline p, .arus .access-matrix-header p { color: var(--ink-2); font-size: 15px; font-weight: 600; }
@@ -85,7 +85,7 @@
 
 /* ringkasan angka di eksplorasi */
 .arus .explore-summary { background: transparent; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
-.arus .explore-summary strong { font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 900; letter-spacing: -.04em; }
+.arus .explore-summary strong { font-size: clamp(1.4rem, 2.4vw, 2rem); font-weight: 900; letter-spacing: -.04em; }
 .arus .explore-summary span { font-weight: 800; text-transform: uppercase; font-size: 12px; color: var(--ink); }
 
 /* batang peringkat */
@@ -97,9 +97,9 @@
 
 /* profil provinsi */
 .arus .explore-profile { background: var(--ink); color: var(--paper); border: 0; }
-.arus .explore-profile h3 { color: var(--volt); font-size: 2rem; font-weight: 900; text-transform: uppercase; letter-spacing: -.04em; line-height: .95; }
+.arus .explore-profile h3 { color: var(--volt); font-size: 1.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: -.04em; line-height: .95; }
 .arus .explore-profile strong, .arus .explore-profile b { color: var(--paper); }
-.arus .explore-profile-focus strong { font-size: 2.4rem; font-weight: 900; letter-spacing: -.04em; color: var(--volt); }
+.arus .explore-profile-focus strong { font-size: 2rem; font-weight: 900; letter-spacing: -.04em; color: var(--volt); }
 .arus .explore-profile span, .arus .explore-profile small, .arus .explore-profile p { color: #CFC9BC; }
 .arus .explore-profile .btn.primary { background: var(--volt); color: var(--ink); border-color: var(--volt); }
 .arus .explore-profile .explore-compare-button { color: var(--paper); }
@@ -108,9 +108,9 @@
 .arus .compare-cards { gap: 0; border-top: 6px solid var(--ink); }
 .arus .compare-card { background: transparent; border: 0 !important; border-right: 2px solid var(--ink) !important; padding: 24px 22px 24px 0; margin-right: 22px; }
 .arus .compare-card:last-child { border-right: 0 !important; margin-right: 0; }
-.arus .compare-card h2 { font-size: clamp(1.6rem, 2.6vw, 2.2rem); font-weight: 900; text-transform: uppercase; letter-spacing: -.04em; line-height: .95; margin-top: 0; }
+.arus .compare-card h2 { font-size: clamp(1.4rem, 2.2vw, 1.85rem); font-weight: 900; text-transform: uppercase; letter-spacing: -.04em; line-height: .95; margin-top: 0; }
 .arus .compare-card .region { font-weight: 700; color: var(--ink-2); }
-.arus .compare-card .big-number { font-size: clamp(3.4rem, 6vw, 5.6rem); font-weight: 900; letter-spacing: -.06em; line-height: .9; }
+.arus .compare-card .big-number { font-size: clamp(2.8rem, 4.8vw, 4.4rem); font-weight: 900; letter-spacing: -.06em; line-height: .9; }
 .arus .compare-card .big-label { font-weight: 700; color: var(--ink); }
 
 /* tabel */

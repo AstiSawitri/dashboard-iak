@@ -1,4 +1,4 @@
-/* Dasbor Energi Indonesia — gaya poster.
+/* ARUS, dasbor kelistrikan Indonesia — gaya poster.
    Kertas koran, tinta hitam, kuning rambu tegangan tinggi, dan satu warna "panas"
    (oranye-merah) yang hanya dipakai untuk yang masih kurang listrik.
    Huruf: Montserrat. Judul berat (800-900), kapital, rapat. Tanpa sudut membulat, tanpa bayangan. */
@@ -41,7 +41,7 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: "Montserrat", system-ui, sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
   line-height: 1.55;
 }
@@ -78,11 +78,14 @@ a:hover { background: var(--volt); text-decoration: none; }
 }
 .brand:hover { background: none; color: var(--volt); }
 .brand .mark { display: none; }
+.brand img { display: block; height: 28px; width: auto; }
+.auth-logo { display: block; align-self: flex-start; height: 56px; width: auto; }
+.auth-intro .mark-lg { display: none; }
 .nav { display: flex; gap: 0; }
 .nav a {
   display: flex; align-items: center; padding: 0 16px;
   color: var(--paper); text-decoration: none;
-  font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: .01em;
+  font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .01em;
 }
 .nav a:hover { background: #2A2A2A; color: var(--paper); }
 .nav a[aria-current="page"] { background: var(--volt); color: var(--ink); }
@@ -101,17 +104,17 @@ a:hover { background: var(--volt); text-decoration: none; }
 .page.narrow { max-width: 820px; padding-top: 96px; }
 .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); }
 .h-page {
-  font-size: clamp(2.6rem, 8vw, 6.5rem); font-weight: 900; text-transform: uppercase;
-  line-height: .88; letter-spacing: -.045em; margin: 8px 0 20px;
+  font-size: clamp(2.2rem, 6vw, 5rem); font-weight: 900; text-transform: uppercase;
+  line-height: .9; letter-spacing: -.045em; margin: 8px 0 20px;
 }
 .h-sub {
-  font-size: clamp(1.6rem, 3.5vw, 2.6rem); font-weight: 900; text-transform: uppercase;
-  line-height: .95; letter-spacing: -.035em; margin: 88px 0 20px; padding-top: 18px; border-top: var(--rule);
+  font-size: clamp(1.4rem, 2.8vw, 2.1rem); font-weight: 900; text-transform: uppercase;
+  line-height: .95; letter-spacing: -.035em; margin: 72px 0 18px; padding-top: 18px; border-top: var(--rule);
 }
-.lede { font-size: 1.15rem; font-weight: 600; max-width: 56ch; margin: 0 0 36px; }
+.lede { font-size: 1.05rem; font-weight: 600; max-width: 56ch; margin: 0 0 36px; }
 
 /* ---------- filter ---------- */
-.controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px 20px; margin-bottom: 28px; }
+.controls { position: relative; z-index: 3; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px 20px; margin-bottom: 28px; }
 .control { display: flex; flex-direction: column; gap: 4px; }
 .control-label { font-size: 12px; font-weight: 800; text-transform: uppercase; }
 select, input {
@@ -145,22 +148,22 @@ select:hover, input:hover { background-color: #fff; }
 .empty { margin: 0; padding: 24px; font-weight: 700; }
 
 /* ---------- hero: satu angka besar ---------- */
-.hero { padding: 36px 0 44px; }
+.hero { padding: 32px var(--gutter) 40px; }
 .hero-num {
-  margin: 0; font-weight: 900; line-height: .8; letter-spacing: -.06em;
-  font-size: clamp(6.5rem, 24vw, 21rem); font-variant-numeric: tabular-nums;
+  position: relative; z-index: 1; margin: 12px 0 0; font-weight: 900; line-height: .85; letter-spacing: -.06em;
+  font-size: clamp(4.6rem, 17vw, 14.5rem); font-variant-numeric: tabular-nums;
 }
 .hero-num.panas { color: var(--hot); }
 .hero-num small { font-size: .42em; letter-spacing: -.03em; margin-left: .04em; }
 .hero-line {
-  margin: 18px 0 0; max-width: 18ch;
-  font-size: clamp(1.9rem, 4.6vw, 4rem); font-weight: 900; text-transform: uppercase;
+  margin: 30px 0 0; max-width: 18ch;
+  font-size: clamp(1.6rem, 3.6vw, 3.1rem); font-weight: 900; text-transform: uppercase;
   line-height: .95; letter-spacing: -.04em;
 }
 .hero-line mark { background: var(--volt); color: var(--ink); padding: 0 .12em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
 .hero-vs {
   margin: 22px 0 0 auto; max-width: 30ch; text-align: right;
-  font-size: clamp(1.05rem, 1.8vw, 1.4rem); font-weight: 700;
+  font-size: clamp(.98rem, 1.5vw, 1.2rem); font-weight: 700;
 }
 .hero-vs b { font-weight: 900; }
 
@@ -172,7 +175,7 @@ select:hover, input:hover { background-color: #fff; }
 }
 .band p {
   margin: 0; font-weight: 900; text-transform: uppercase; letter-spacing: -.045em; line-height: .88;
-  font-size: clamp(2.2rem, 7vw, 6.4rem);
+  font-size: clamp(1.9rem, 5.2vw, 4.8rem);
 }
 .band small { display: block; margin-top: 14px; font-size: 15px; font-weight: 700; letter-spacing: 0; text-transform: none; line-height: 1.4; max-width: 70ch; }
 
@@ -181,7 +184,7 @@ select:hover, input:hover { background-color: #fff; }
 .sheet-dark a { color: var(--paper); }
 .sheet-dark a:hover { color: var(--ink); }
 .map-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 28px; margin-bottom: 18px; }
-.map-title { margin: 0; font-size: clamp(1.8rem, 4vw, 3.2rem); font-weight: 900; text-transform: uppercase; letter-spacing: -.04em; line-height: .9; }
+.map-title { margin: 0; font-size: clamp(1.5rem, 3vw, 2.5rem); font-weight: 900; text-transform: uppercase; letter-spacing: -.04em; line-height: .9; }
 .seg-switch { display: flex; flex-wrap: wrap; gap: 0; border: 2px solid var(--paper); }
 .seg-switch button {
   font: inherit; font-size: 13px; font-weight: 800; text-transform: uppercase; cursor: pointer;
@@ -213,7 +216,7 @@ select:hover, input:hover { background-color: #fff; }
 .figure:last-child { border-right: 0; margin-right: 0; }
 .figure dt { font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
 .figure dd { margin: 0; }
-.figure .num { white-space: nowrap; font-size: clamp(1.9rem, 3.6vw, 3.4rem); font-weight: 900; letter-spacing: -.05em; line-height: 1; font-variant-numeric: tabular-nums; }
+.figure .num { white-space: nowrap; font-size: clamp(1.6rem, 2.9vw, 2.7rem); font-weight: 900; letter-spacing: -.05em; line-height: 1; font-variant-numeric: tabular-nums; }
 .figure .unit { font-weight: 800; font-size: 15px; }
 .delta { font-size: 14px; font-weight: 600; color: var(--ink-2); margin-top: 8px !important; }
 .scope { font-size: 14px; font-weight: 600; color: var(--ink-2); margin: 14px 0 0; max-width: 80ch; }
@@ -223,8 +226,8 @@ select:hover, input:hover { background-color: #fff; }
 .block-text { display: grid; grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr); gap: 12px 48px; align-items: end; margin-bottom: 22px; }
 .block h2 { grid-column: 1 / -1; margin: 0 0 6px; }
 .note {
-  margin: 0; font-size: clamp(1.6rem, 3.4vw, 2.9rem); font-weight: 900; text-transform: uppercase;
-  line-height: .95; letter-spacing: -.04em; max-width: 24ch;
+  margin: 0; font-size: clamp(1.35rem, 2.6vw, 2.25rem); font-weight: 900; text-transform: uppercase;
+  line-height: .98; letter-spacing: -.04em; max-width: 24ch;
 }
 .note:empty { display: none; }
 .block .desc { margin: 0; font-size: 15px; font-weight: 600; color: var(--ink-2); }
@@ -256,18 +259,18 @@ select:hover, input:hover { background-color: #fff; }
 }
 .auth-intro h1 {
   margin: 0; color: var(--volt);
-  font-size: clamp(3.6rem, 9.5vw, 9.5rem); font-weight: 900; text-transform: uppercase;
+  font-size: clamp(3rem, 7.5vw, 7.5rem); font-weight: 900; text-transform: uppercase;
   line-height: .82; letter-spacing: -.055em;
 }
 .auth-intro h1 span { display: block; color: var(--paper); }
 .auth-intro p { margin: 0; font-size: 1.15rem; font-weight: 600; max-width: 34ch; }
 .auth-intro .mark-lg { align-self: flex-start; }
 .auth-count { display: flex; flex-wrap: wrap; gap: 8px 32px; margin: 0; padding: 0; list-style: none; }
-.auth-count b { display: block; font-size: 3.4rem; font-weight: 900; line-height: .9; letter-spacing: -.05em; color: var(--volt); }
+.auth-count b { display: block; font-size: 2.8rem; font-weight: 900; line-height: .9; letter-spacing: -.05em; color: var(--volt); }
 .auth-count li { font-weight: 700; text-transform: uppercase; font-size: 13px; }
 .auth-side { display: flex; align-items: center; padding: 48px var(--gutter); }
 .auth-form { display: flex; flex-direction: column; gap: 18px; width: 100%; max-width: 420px; }
-.auth-form h2 { margin: 0 0 4px; font-size: 2.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: -.045em; line-height: .9; }
+.auth-form h2 { margin: 0 0 4px; font-size: 2.2rem; font-weight: 900; text-transform: uppercase; letter-spacing: -.045em; line-height: .9; }
 .auth-form label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 800; text-transform: uppercase; }
 .auth-form input { text-transform: none; font-size: 16px; }
 .auth-form .hint { font-weight: 600; text-transform: none; color: var(--ink-3); }
@@ -280,7 +283,7 @@ select:hover, input:hover { background-color: #fff; }
 .control.check input { min-height: 0; width: 20px; height: 20px; accent-color: var(--ink); }
 .method { max-width: 78ch; padding: 0; margin: 0 0 16px; list-style: none; counter-reset: m; }
 .method li { counter-increment: m; position: relative; padding: 14px 0 14px 64px; border-bottom: 1px solid var(--line-2); font-weight: 600; }
-.method li::before { content: counter(m); position: absolute; left: 0; top: 4px; font-size: 2.4rem; font-weight: 900; line-height: 1; letter-spacing: -.05em; }
+.method li::before { content: counter(m); position: absolute; left: 0; top: 6px; font-size: 2rem; font-weight: 900; line-height: 1; letter-spacing: -.05em; }
 #t-sumber td { white-space: normal; vertical-align: top; }
 #t-sumber td:first-child { min-width: 260px; font-weight: 700; }
 #t-sumber td:nth-child(3) { min-width: 200px; }

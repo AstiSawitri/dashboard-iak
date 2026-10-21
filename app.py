@@ -1,5 +1,5 @@
 """
-Dasbor Energi Indonesia
+ARUS, dasbor kelistrikan Indonesia
 Tugas Integrasi Aplikasi Korporasi (EAI)
 
 Tiga lapisan (three-tier):
@@ -184,19 +184,12 @@ def api_data_csv(name):
                     headers={"Content-Disposition": f"attachment; filename={name}.csv"})
 
 
+# Level presentasi: view v_provinsi_lengkap (dibuat di db.py) sudah menggabungkan kelima dataset.
 GABUNGAN_SQL = """
-SELECT p.kode_bps, p.nama AS provinsi, p.wilayah,
-       pr.produksi_gwh, kp.kapasitas_mw,
-       rt.total_persen AS rumah_tangga_persen,
-       rt.perkotaan_persen AS rumah_tangga_kota_persen,
-       rt.perdesaan_persen AS rumah_tangga_desa_persen,
-       sma.total_persen AS sma_persen, smk.total_persen AS smk_persen
-FROM provinsi p
-LEFT JOIN produksi_listrik pr     ON pr.kode_bps = p.kode_bps
-LEFT JOIN kapasitas_pembangkit kp ON kp.kode_bps = p.kode_bps
-LEFT JOIN rumah_tangga_listrik rt ON rt.kode_bps = p.kode_bps
-LEFT JOIN sma_listrik sma         ON sma.kode_bps = p.kode_bps
-LEFT JOIN smk_listrik smk         ON smk.kode_bps = p.kode_bps
+SELECT p.kode_bps, p.provinsi, p.wilayah, p.produksi_gwh, p.kapasitas_mw,
+       p.rumah_tangga_persen, p.rumah_tangga_kota_persen, p.rumah_tangga_desa_persen,
+       p.sma_persen, p.smk_persen
+FROM v_provinsi_lengkap p
 """
 
 
@@ -248,6 +241,25 @@ INDIKATOR = ["produksi_gwh", "kapasitas_mw", "rumah_tangga_persen", "rumah_tangg
              "sma_persen", "smk_persen", "faktor_kapasitas_persen"]
 
 
+@app.route("/api/etl")
+@login_required
+def api_etl():
+    """Riwayat sinkronisasi dan jumlah baris di tiap level data."""
+    batch = db.query("SELECT * FROM etl_batch ORDER BY batch_id DESC LIMIT 10")
+    log = db.query("SELECT * FROM etl_log ORDER BY id DESC LIMIT 40")
+    level = []
+    for ds in DATASETS:
+        stg = db.query(f"SELECT COUNT(*) AS n FROM stg_{ds}")[0]["n"]
+        integ = db.query(f"SELECT COUNT(*) AS n FROM {ds}")[0]["n"]
+        level.append({"dataset": ds, "staging": stg, "integrasi": integ})
+    pres = db.query("SELECT COUNT(*) AS n FROM v_provinsi_lengkap")[0]["n"]
+    for x in batch + log:
+        for k in ("mulai", "selesai", "waktu"):
+            if x.get(k) is not None:
+                x[k] = str(x[k])[:19]
+    return jsonify({"batch": batch, "log": log, "level": level, "presentasi": pres})
+
+
 @app.route("/api/ringkasan")
 @login_required
 def api_ringkasan():
@@ -280,18 +292,13 @@ def api_ringkasan():
 # jadi kode grafiknya tidak perlu diubah. Ini contoh Application Interface-level EAI.
 # ---------------------------------------------------------------------------
 ATLAS_SQL = """
-SELECT p.kode_bps, p.nama, p.wilayah,
-       rt.tahun AS rt_tahun, rt.total_persen AS rt_total, rt.perkotaan_persen AS rt_kota, rt.perdesaan_persen AS rt_desa,
-       pr.produksi_gwh, kp.kapasitas_mw,
-       sma.tahun AS sma_tahun, sma.negeri_persen AS sma_negeri, sma.swasta_persen AS sma_swasta, sma.total_persen AS sma_total,
-       smk.tahun AS smk_tahun, smk.negeri_persen AS smk_negeri, smk.swasta_persen AS smk_swasta, smk.total_persen AS smk_total
-FROM provinsi p
-LEFT JOIN rumah_tangga_listrik rt ON rt.kode_bps = p.kode_bps
-LEFT JOIN produksi_listrik pr     ON pr.kode_bps = p.kode_bps
-LEFT JOIN kapasitas_pembangkit kp ON kp.kode_bps = p.kode_bps
-LEFT JOIN sma_listrik sma         ON sma.kode_bps = p.kode_bps
-LEFT JOIN smk_listrik smk         ON smk.kode_bps = p.kode_bps
-ORDER BY p.kode_bps
+SELECT kode_bps, provinsi AS nama, wilayah,
+       rt_tahun, rumah_tangga_persen AS rt_total, rumah_tangga_kota_persen AS rt_kota, rumah_tangga_desa_persen AS rt_desa,
+       produksi_gwh, kapasitas_mw,
+       sma_tahun, sma_negeri_persen AS sma_negeri, sma_swasta_persen AS sma_swasta, sma_persen AS sma_total,
+       smk_tahun, smk_negeri_persen AS smk_negeri, smk_swasta_persen AS smk_swasta, smk_persen AS smk_total
+FROM v_provinsi_lengkap
+ORDER BY kode_bps
 """
 
 

@@ -148,6 +148,79 @@ SCHEMA = [
     )""",
 ]
 
+# ---------------------------------------------------------------------------
+# TIGA LEVEL DATA
+#   1. STAGING     stg_*      salinan mentah tiap file, semua kolom teks, apa adanya (duplikasi)
+#   2. INTEGRASI   provinsi, rumah_tangga_listrik, ...   data bersih & seragam (hasil transformasi)
+#   3. PRESENTASI  v_provinsi_lengkap   view gabungan 5 dataset yang dibaca web/API
+# Sinkronisasi dicatat di etl_batch + etl_log (hash file sumber dipakai untuk deteksi perubahan).
+# ---------------------------------------------------------------------------
+TXT = "TEXT"
+SCHEMA += [
+    # level 1: staging (isi file disalin baris per baris tanpa diubah)
+    f"""CREATE TABLE IF NOT EXISTS stg_rumah_tangga_listrik (
+        batch_id INTEGER, kode_wilayah {TXT}, nama_wilayah {TXT}, klasifikasi {TXT}, tahun {TXT}, nilai {TXT}
+    )""",
+    f"""CREATE TABLE IF NOT EXISTS stg_produksi_listrik (
+        batch_id INTEGER, baris_ke INTEGER, kolom_1 {TXT}, kolom_2 {TXT}
+    )""",
+    f"""CREATE TABLE IF NOT EXISTS stg_kapasitas_pembangkit (
+        batch_id INTEGER, baris_ke INTEGER, kolom_1 {TXT}, kolom_2 {TXT}
+    )""",
+    f"""CREATE TABLE IF NOT EXISTS stg_sma_listrik (
+        batch_id INTEGER, baris_ke INTEGER, kolom_1 {TXT}, kolom_2 {TXT}, kolom_3 {TXT}, kolom_4 {TXT},
+        kolom_5 {TXT}, kolom_6 {TXT}, kolom_7 {TXT}
+    )""",
+    f"""CREATE TABLE IF NOT EXISTS stg_smk_listrik (
+        batch_id INTEGER, baris_ke INTEGER, kolom_1 {TXT}, kolom_2 {TXT}, kolom_3 {TXT}, kolom_4 {TXT},
+        kolom_5 {TXT}, kolom_6 {TXT}, kolom_7 {TXT}
+    )""",
+    # catatan sinkronisasi
+    f"""CREATE TABLE IF NOT EXISTS etl_batch (
+        batch_id {SERIAL},
+        alat VARCHAR(30) NOT NULL,
+        mulai TIMESTAMP NOT NULL,
+        selesai TIMESTAMP,
+        status VARCHAR(20) NOT NULL,
+        catatan VARCHAR(300)
+    )""",
+    f"""CREATE TABLE IF NOT EXISTS etl_log (
+        id {SERIAL},
+        batch_id INTEGER NOT NULL,
+        waktu TIMESTAMP NOT NULL,
+        tingkat VARCHAR(12) NOT NULL,
+        dataset VARCHAR(40) NOT NULL,
+        file_asal VARCHAR(200),
+        hash_file VARCHAR(64),
+        baris INTEGER,
+        status VARCHAR(20) NOT NULL,
+        pesan VARCHAR(300)
+    )""",
+]
+
+# level 3: presentasi. View dibuat ulang tiap start supaya selalu sesuai skema.
+VIEWS = {
+    "v_provinsi_lengkap": """
+SELECT p.kode_bps, p.nama AS provinsi, p.wilayah,
+       pr.tahun AS produksi_tahun, pr.produksi_gwh,
+       kp.tahun AS kapasitas_tahun, kp.kapasitas_mw,
+       rt.tahun AS rt_tahun, rt.total_persen AS rumah_tangga_persen,
+       rt.perkotaan_persen AS rumah_tangga_kota_persen, rt.perdesaan_persen AS rumah_tangga_desa_persen,
+       sma.tahun AS sma_tahun, sma.negeri_persen AS sma_negeri_persen, sma.swasta_persen AS sma_swasta_persen,
+       sma.total_persen AS sma_persen,
+       smk.tahun AS smk_tahun, smk.negeri_persen AS smk_negeri_persen, smk.swasta_persen AS smk_swasta_persen,
+       smk.total_persen AS smk_persen
+FROM provinsi p
+LEFT JOIN produksi_listrik pr     ON pr.kode_bps = p.kode_bps
+LEFT JOIN kapasitas_pembangkit kp ON kp.kode_bps = p.kode_bps
+LEFT JOIN rumah_tangga_listrik rt ON rt.kode_bps = p.kode_bps
+LEFT JOIN sma_listrik sma         ON sma.kode_bps = p.kode_bps
+LEFT JOIN smk_listrik smk         ON smk.kode_bps = p.kode_bps
+""",
+}
+
+STAGING = ["stg_rumah_tangga_listrik", "stg_produksi_listrik", "stg_kapasitas_pembangkit", "stg_sma_listrik", "stg_smk_listrik"]
+
 # Tabel dari versi pertama (data contoh) yang sudah tidak dipakai
 TABEL_LAMA = ["konsumsi_energi", "rasio_elektrifikasi", "kapasitas_ebt", "pelanggan_listrik"]
 
@@ -163,6 +236,9 @@ def init_schema():
         execute(f"DROP TABLE IF EXISTS {t}")
     for stmt in SCHEMA:
         execute(stmt)
+    for nama, sql in VIEWS.items():
+        execute(f"DROP VIEW IF EXISTS {nama}")
+        execute(f"CREATE VIEW {nama} AS {sql}")
 
 
 def _kolom(tabel):

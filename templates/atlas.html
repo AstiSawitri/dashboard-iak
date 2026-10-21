@@ -2,7 +2,7 @@
 {# Atlas: dashboard buatan anggota kelompok (prototipe ARUS) di dalam kerangka web utama.
    Data dari /atlas/api/data, login memakai session web utama. Tampilan diselaraskan lewat
    static/atlas/styles.css (hasil tools/samakan_atlas.py) dan static/atlas/tema.css. #}
-{% block title %}Eksplorasi provinsi - Dasbor Energi Indonesia{% endblock %}
+{% block title %}Eksplorasi provinsi - ARUS{% endblock %}
 {% block head_pre %}<link rel="stylesheet" href="{{ url_for('static', filename='atlas/styles.css') }}">{% endblock %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='atlas/tema.css') }}">{% endblock %}
 {% block content %}
@@ -39,7 +39,7 @@
       document.querySelectorAll('.nav a[data-atlas]').forEach(function (a) {
         if (a.dataset.atlas === p) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
       });
-      document.title = (p === 'compare' ? 'Bandingkan provinsi' : 'Eksplorasi provinsi') + ' - Dasbor Energi Indonesia';
+      document.title = (p === 'compare' ? 'Bandingkan provinsi' : 'Eksplorasi provinsi') + ' - ARUS';
     }
     window.addEventListener('hashchange', tandai); tandai();
   })();

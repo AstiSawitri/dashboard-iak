@@ -67,3 +67,36 @@ async function tampilkan() {
 }
 
 mulai().catch((e) => console.error(e));
+
+
+// ---------------------------------------------------------------- tiga level data + log sinkronisasi
+(async function muatEtl() {
+  const sel = (q) => document.querySelector(q);
+  const sel2 = (id) => document.getElementById(id);
+  try {
+    const d = await api("/api/etl");
+    const td = (txt, cls) => { const c = document.createElement("td"); if (cls) c.className = cls; c.textContent = txt ?? "–"; return c; };
+    const lv = sel("#t-level tbody"); lv.innerHTML = "";
+    d.level.forEach((x, i) => {
+      const tr = document.createElement("tr");
+      tr.append(td(x.dataset), td(nf0.format(x.staging), "r"), td(nf0.format(x.integrasi), "r"),
+        td(i === 0 ? `v_provinsi_lengkap, ${d.presentasi} baris (5 dataset digabung)` : "↳ ikut digabung"));
+      lv.append(tr);
+    });
+    const b = d.batch[0];
+    sel2("sinkron-terakhir").textContent = b
+      ? `Sinkronisasi terakhir: batch ${b.batch_id}, ${b.selesai || b.mulai}, ${b.status}, lewat ${b.alat}.`
+      : "Belum pernah ada sinkronisasi. Jalankan ETL (Pentaho atau python etl_lokal.py).";
+    const lg = sel("#t-log tbody"); lg.innerHTML = "";
+    if (!d.log.length) { const tr = document.createElement("tr"); tr.append(td("Belum ada catatan.")); lg.append(tr); }
+    d.log.forEach((x) => {
+      const tr = document.createElement("tr");
+      tr.append(td(x.waktu), td(x.batch_id), td(x.tingkat), td(x.dataset), td(x.baris == null ? "–" : nf0.format(x.baris), "r"),
+        td(x.status), td(x.hash_file ? x.hash_file.slice(0, 12) + "…" : "–"));
+      if (x.status === "gagal") tr.style.background = "var(--hot)";
+      lg.append(tr);
+    });
+  } catch (e) {
+    console.error(e);
+  }
+})();

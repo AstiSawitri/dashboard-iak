@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 {% from '_macros.html' import mark %}
-{% block title %}Buat akun - Dasbor Energi Indonesia{% endblock %}
+{% block title %}Buat akun - ARUS{% endblock %}
 {% block body_class %}page-auth{% endblock %}
 {% block content %}
 <main class="auth">
   <section class="auth-intro">
+    <img class="auth-logo" src="{{ url_for('static', filename='img/arus-logo-terang.png') }}" alt="ARUS" width="218" height="56">
     <h1>Listrik<span>Indonesia</span></h1>
     <p>Buat akun untuk membuka dasbor. Kata sandi disimpan dalam bentuk hash, bukan teks asli.</p>
     {{ mark('mark-lg') }}

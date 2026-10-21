@@ -3,10 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Dasbor Energi Indonesia{% endblock %}</title>
+  <title>{% block title %}ARUS · Dasbor Kelistrikan Indonesia{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300..800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='img/favicon-32.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
   {% block head_pre %}{% endblock %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   {% block head %}{% endblock %}
@@ -16,7 +18,7 @@
 
 {% if session.get('user_id') %}
 <header class="topbar">
-  <a class="brand" href="{{ url_for('dashboard') }}">Dasbor Energi</a>
+  <a class="brand" href="{{ url_for('dashboard') }}"><img src="{{ url_for('static', filename='img/arus-logo-terang.png') }}" alt="ARUS" width="109" height="28"></a>
   <nav class="nav" aria-label="Halaman">
     <a href="{{ url_for('dashboard') }}" {% if page == 'dasbor' %}aria-current="page"{% endif %}>Ringkasan</a>
     <a href="{{ url_for('atlas') }}#explore" data-atlas="explore">Eksplorasi provinsi</a>

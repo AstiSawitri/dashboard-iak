@@ -7,6 +7,46 @@ langsung memakainya tanpa perlu ubah kode.
 Sebagai pembanding, `etl_lokal.py` mengerjakan alur yang sama dengan Python. Kalau ETL Pentaho benar,
 isi tabelnya sama persis dengan hasil skrip itu. Jalankan `python etl_lokal.py` lalu bandingkan.
 
+## Tiga level data
+
+```
+ file mentah ──► 1. STAGING ──────────► 2. INTEGRASI ─────────────► 3. PRESENTASI
+ (JSON/CSV/      stg_* (semua teks,      provinsi, rumah_tangga_...,   view v_provinsi_lengkap
+  XLSX)          apa adanya)             tabel bersih & seragam        (5 dataset digabung)
+                 = DUPLIKASI             = TRANSFORMASI                dibaca web/API
+                        └──────── tiap jalan dicatat di etl_batch + etl_log = SINKRONISASI ───────┘
+```
+
+Tabel staging, log, dan view **sudah dibuat otomatis** oleh `python seed.py`. Pentaho cukup mengisinya.
+
+### Level 1: staging (Pentaho = transformation "1_staging")
+Salin isi file **tanpa diubah** (semua kolom tipe teks). Kosongkan dulu tabelnya (Truncate).
+
+| Tabel | Kolom | Isi |
+|---|---|---|
+| `stg_rumah_tangga_listrik` | batch_id, kode_wilayah, nama_wilayah, klasifikasi, tahun, nilai | JSON diratakan: 1 baris per wilayah × klasifikasi (Perkotaan / Perdesaan / Perkotaan+Perdesaan), 117 baris |
+| `stg_produksi_listrik` | batch_id, baris_ke, kolom_1, kolom_2 | Semua baris CSV termasuk judul, 42 baris |
+| `stg_kapasitas_pembangkit` | batch_id, baris_ke, kolom_1, kolom_2 | Semua baris XLSX termasuk judul, 42 baris |
+| `stg_sma_listrik`, `stg_smk_listrik` | batch_id, baris_ke, kolom_1 … kolom_7 | Sheet `data` apa adanya, 44 baris |
+
+### Level 2: integrasi (Pentaho = transformation "2_integrasi")
+**Input dari tabel staging (Table Input), bukan dari file.** Transformasinya seperti di bagian
+"Garis besar transformasi" di bawah, hasilnya ke tabel tujuan (bagian "Tabel tujuan").
+
+### Level 3: presentasi
+View `v_provinsi_lengkap` dibuat oleh `seed.py`/aplikasi. Pentaho tidak perlu mengubahnya.
+
+### Sinkronisasi (Pentaho = job yang menjalankan 1 lalu 2)
+1. Di awal job, tambah baris ke `etl_batch` (alat = 'pentaho', mulai = sekarang, status = 'berjalan').
+2. Tiap tabel yang dimuat, tambah baris ke `etl_log`:
+   `batch_id, waktu, tingkat ('staging'/'integrasi'/'presentasi'), dataset, file_asal, hash_file, baris, status ('ok'/'gagal'/'tidak berubah'), pesan`.
+   Hash file bisa diisi dari step *Calculator* → "MD5/SHA-256 of file", atau dikosongkan.
+3. Di akhir job, ubah status batch jadi 'berhasil' atau 'gagal'.
+4. Jadwalkan job (Kitchen + Task Scheduler/cron, atau Hop scheduler) supaya jalan berkala.
+   Riwayatnya otomatis tampil di halaman **Data dan sumber** pada web.
+
+Contoh di Python: `python etl_lokal.py` (sekali), `--paksa` (muat ulang semua), `--pantau 5` (cek perubahan file tiap 5 menit).
+
 ## File mentah (folder `data/mentah/`)
 
 | File | Format | Isi | Tahun |

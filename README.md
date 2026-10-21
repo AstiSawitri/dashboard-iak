@@ -1,4 +1,6 @@
-# Dasbor Energi Indonesia
+# ARUS: Dasbor Kelistrikan Indonesia
+
+![ARUS](static/img/arus-logo.png)
 
 Website dashboard untuk tugas Integrasi Aplikasi Korporasi (EAI), tema **Energi**.
 Fitur: login, peta 38 provinsi, eksplorasi dan visualisasi 5 dataset kelistrikan (rumah tangga
@@ -34,6 +36,12 @@ web utama), lalu `static/atlas/tema.css` merapikan sisanya.
 
 Ini **three-tier**: user interface (templates + static), business logic (Flask), data (database).
 
+Di dalam database ada **tiga level data**: `stg_*` (staging, salinan mentah file = duplikasi),
+tabel integrasi (`provinsi`, `rumah_tangga_listrik`, …, hasil transformasi), dan view presentasi
+`v_provinsi_lengkap` yang dibaca API. Setiap sinkronisasi ETL dicatat di `etl_batch` dan `etl_log`
+(termasuk hash file, jadi file yang tidak berubah tidak dimuat ulang). Riwayatnya tampil di halaman
+Data dan sumber. Detail di `SKEMA_DATA.md`.
+
 ## Struktur folder
 
 ```
@@ -43,6 +51,7 @@ dashboard-energi/
 ├── seed.py           # buat tabel + akun demo
 ├── etl_lokal.py      # ETL Python dari data/mentah (cadangan/pembanding Pentaho)
 ├── buat_peta.py      # ubah GeoJSON jadi static/peta.json (sekali saja)
+├── tools/buat_logo.py  # bikin ulang logo ARUS (static/img/)
 ├── tools/samakan_atlas.py  # selaraskan CSS ARUS dengan tampilan web utama
 ├── data/mentah/      # 5 file asli
 ├── data/peta/        # GeoJSON 38 provinsi + lisensinya
@@ -63,7 +72,7 @@ python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
 python seed.py
-python etl_lokal.py
+python etl_lokal.py          # tambahkan --paksa untuk muat ulang, --pantau 5 untuk sinkron tiap 5 menit
 python app.py
 ```
 
