@@ -100,8 +100,9 @@ Kalau sebelumnya sudah pernah menjalankan versi data contoh, tabel lama otomatis
 5. Isi datanya, salah satu:
    - **Pentaho** (rencana kelompok): kirim `SKEMA_DATA.md` dan detail koneksi ke temen yang pegang ETL.
    - **Cadangan**: `python etl_lokal.py` dengan `DATABASE_URL` yang sama.
-6. Lengkapi sumber CSV produksi dan XLSX kapasitas di tabel `sumber_data` (sekarang tertulis
-   "Belum dicantumkan").
+6. Kalau database sudah berisi data warehouse Pentaho (schema `dw`), web otomatis membaca dari sana
+   lewat view jembatan di schema `arus`. Data `dw` tidak diubah, dan `etl_lokal.py` menolak berjalan
+   supaya tidak menimpa hasil Pentaho. Paksa mode lain dengan `SUMBER_DATA=lokal` atau `SUMBER_DATA=dw`.
 
 ## Deploy ke Render (gratis)
 

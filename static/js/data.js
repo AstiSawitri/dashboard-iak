@@ -29,9 +29,7 @@ async function mulai() {
     const td3 = sel("td");
     if (s.url) { const a = sel("a", s.sumber); a.href = s.url; a.target = "_blank"; a.rel = "noopener"; td3.append(a); }
     else td3.append(s.sumber);
-    if (Number(s.data_contoh)) td3.append(sel("small", "Masih data contoh"));
-    if (!s.url) td3.append(sel("small", "URL asal belum dicantumkan"));
-    tr.append(td1, td2, td3, sel("td", s.tahun_data ?? "–", "r"), sel("td", nf0.format(s.jumlah_baris ?? 0), "r"));
+    tr.append(td1, td2, td3, sel("td", s.tahun_data ?? "", "r"), sel("td", nf0.format(s.jumlah_baris ?? 0), "r"));
     body.append(tr);
   });
 
@@ -77,22 +75,29 @@ mulai().catch((e) => console.error(e));
     const d = await api("/api/etl");
     const td = (txt, cls) => { const c = document.createElement("td"); if (cls) c.className = cls; c.textContent = txt ?? "–"; return c; };
     const lv = sel("#t-level tbody"); lv.innerHTML = "";
-    d.level.forEach((x, i) => {
+    let levelSebelum = "";
+    d.lapisan.forEach((x) => {
       const tr = document.createElement("tr");
-      tr.append(td(x.dataset), td(nf0.format(x.staging), "r"), td(nf0.format(x.integrasi), "r"),
-        td(i === 0 ? `v_provinsi_lengkap, ${d.presentasi} baris (5 dataset digabung)` : "↳ ikut digabung"));
+      tr.append(td(x.level === levelSebelum ? "" : x.level), td(x.tabel), td(nf0.format(x.baris), "r"), td(x.ket || ""));
+      if (x.level !== levelSebelum) tr.style.borderTop = "2px solid var(--ink)";
+      levelSebelum = x.level;
       lv.append(tr);
     });
     const b = d.batch[0];
-    sel2("sinkron-terakhir").textContent = b
-      ? `Sinkronisasi terakhir: batch ${b.batch_id}, ${b.selesai || b.mulai}, ${b.status}, lewat ${b.alat}.`
-      : "Belum pernah ada sinkronisasi. Jalankan ETL (Pentaho atau python etl_lokal.py).";
+    const waktu = (t) => String(t || "").replace("T", " ").slice(0, 16);
+    sel2("sinkron-terakhir").textContent = !b ? ""
+      : d.mode === "dw"
+        ? `Data dimuat oleh ETL Pentaho (schema stg dan dw) pada ${waktu(b.selesai || b.mulai)}.`
+        : `Sinkronisasi terakhir: batch ${b.batch_id}, ${waktu(b.selesai || b.mulai)}, ${b.status}, lewat ${b.alat}.`;
+    // riwayat: kolom hash hanya kalau ada isinya; bagian disembunyikan kalau belum ada catatan
+    const adaHash = d.log.some((x) => x.hash_file);
+    if (!adaHash) document.querySelectorAll("#t-log thead th:last-child").forEach((th) => th.remove());
+    if (!d.log.length) { const sec = sel("#t-log").closest(".table-wrap"); sec.hidden = true; sec.previousElementSibling.hidden = true; }
     const lg = sel("#t-log tbody"); lg.innerHTML = "";
-    if (!d.log.length) { const tr = document.createElement("tr"); tr.append(td("Belum ada catatan.")); lg.append(tr); }
     d.log.forEach((x) => {
       const tr = document.createElement("tr");
-      tr.append(td(x.waktu), td(x.batch_id), td(x.tingkat), td(x.dataset), td(x.baris == null ? "–" : nf0.format(x.baris), "r"),
-        td(x.status), td(x.hash_file ? x.hash_file.slice(0, 12) + "…" : "–"));
+      tr.append(td(waktu(x.waktu)), td(x.batch_id), td(x.tingkat), td(x.dataset), td(x.baris == null ? "" : nf0.format(x.baris), "r"), td(x.status));
+      if (adaHash) tr.append(td(x.hash_file ? x.hash_file.slice(0, 12) + "…" : ""));
       if (x.status === "gagal") tr.style.background = "var(--hot)";
       lg.append(tr);
     });

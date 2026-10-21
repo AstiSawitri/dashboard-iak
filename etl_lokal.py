@@ -306,13 +306,13 @@ def level_integrasi(batch):
         ("rumah_tangga_listrik", "Persentase rumah tangga dengan sumber penerangan utama dari listrik, menurut provinsi dan klasifikasi desa",
          "JSON", "BPS, Susenas Maret", url_bps, "Persen rumah tangga", FILE["rumah_tangga_listrik"], tahun_energi),
         ("produksi_listrik", "Tenaga listrik yang dibangkitkan menurut provinsi",
-         "CSV", "Belum dicantumkan", "", "GWh. Lengkapi sumber dan URL asal file ini.", FILE["produksi_listrik"], th_csv),
+         "CSV", "Badan Pusat Statistik (BPS)", "https://www.bps.go.id", "GWh", FILE["produksi_listrik"], th_csv),
         ("kapasitas_pembangkit", "Kapasitas terpasang pembangkit listrik menurut provinsi",
-         "XLSX", "Belum dicantumkan", "", "MW. Lengkapi sumber dan URL asal file ini.", FILE["kapasitas_pembangkit"], th_kap),
+         "XLSX", "Badan Pusat Statistik (BPS)", "https://www.bps.go.id", "MW", FILE["kapasitas_pembangkit"], th_kap),
         ("sma_listrik", "Proporsi SMA yang memiliki akses listrik",
-         "XLSX", "Pusdatin Kementerian Pendidikan Dasar dan Menengah", "", "Persen satuan pendidikan", FILE["sma_listrik"], th_sma),
+         "XLSX", "Satu Data, Pusdatin Kementerian Pendidikan Dasar dan Menengah", "", "Persen satuan pendidikan", FILE["sma_listrik"], th_sma),
         ("smk_listrik", "Proporsi SMK yang memiliki akses listrik",
-         "XLSX", "Pusdatin Kementerian Pendidikan Dasar dan Menengah", "", "Persen satuan pendidikan", FILE["smk_listrik"], th_smk),
+         "XLSX", "Satu Data, Pusdatin Kementerian Pendidikan Dasar dan Menengah", "", "Persen satuan pendidikan", FILE["smk_listrik"], th_smk),
     ]
     db.execute("DELETE FROM sumber_data")
     db.executemany("INSERT INTO sumber_data (kode, nama, format_asal, sumber, url, keterangan, file_asal, tahun_data, data_contoh) "
@@ -333,6 +333,11 @@ def level_presentasi(batch):
 
 # ================================================================ jalankan
 def sinkron(paksa=False):
+    if db.mode() == "dw":
+        log("Database ini memakai data warehouse hasil ETL Pentaho (schema dw).")
+        log("etl_lokal.py tidak dijalankan supaya data Pentaho tidak tertimpa.")
+        log("Kalau memang mau memakai ETL lokal, set SUMBER_DATA=lokal di .env.")
+        return True
     db.init_schema()
     batch = mulai_batch()
     log(f"== Sinkronisasi batch {batch}, {sekarang()} ==")

@@ -490,5 +490,5 @@ function gambarSekolah() {
 
 mulai().catch((e) => {
   console.error(e);
-  $("hero-line").textContent = "Data belum bisa dimuat. Pastikan ETL sudah dijalankan lalu muat ulang halaman.";
+  $("hero-line").textContent = "Data gagal dimuat. Coba muat ulang halaman.";
 });

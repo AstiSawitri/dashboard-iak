@@ -14,11 +14,11 @@
     </table>
   </div>
 
-  <h2 class="h-sub">Tiga level data</h2>
-  <p class="lede">File sumber disalin apa adanya ke tabel <b>staging</b> (duplikasi), diseragamkan ke tabel <b>integrasi</b> (transformasi), lalu digabung dalam view <b>presentasi</b> yang dibaca dasbor. Tiap sinkronisasi dicatat di bawah.</p>
+  <h2 class="h-sub">Alur ETL</h2>
+  <p class="lede">File sumber disalin ke lapisan <b>staging</b> (duplikasi), diseragamkan ke lapisan <b>integrasi</b> (transformasi), lalu digabung dalam view <b>presentasi</b> yang dibaca dasbor. Tiap sinkronisasi dicatat di bawah.</p>
   <div class="table-wrap">
     <table class="t" id="t-level">
-      <thead><tr><th scope="col">Dataset</th><th scope="col" class="r">1. Staging<br><small>baris mentah</small></th><th scope="col" class="r">2. Integrasi<br><small>baris bersih</small></th><th scope="col">3. Presentasi</th></tr></thead>
+      <thead><tr><th scope="col">Lapisan</th><th scope="col">Tabel</th><th scope="col" class="r">Baris</th><th scope="col">Keterangan</th></tr></thead>
       <tbody><tr><td colspan="4">Memuat…</td></tr></tbody>
     </table>
   </div>
@@ -63,7 +63,7 @@
     <li>Angka Indonesia diambil dari baris INDONESIA di tiap sumber. Untuk satu wilayah, produksi dan kapasitas boleh dijumlahkan, tetapi persentase tidak dirata-rata karena tidak ada jumlah rumah tangga atau sekolah sebagai bobot.</li>
     <li>Data sekolah memakai kolom Total dari sumber dan kode BPS, bukan kode Kemendagri (keduanya berbeda untuk provinsi di Papua). Baris Luar Negeri dibuang.</li>
     <li>Faktor kapasitas adalah perkiraan: produksi dibagi kapasitas dikali 8.760 jam. Listrik bisa disalurkan antarprovinsi dan sebagian pembangkit hanya cadangan, jadi jangan dibaca sebagai surplus atau defisit.</li>
-    <li>Setiap indikator hanya punya satu periode, jadi tren antartahun belum bisa dihitung.</li>
+    <li>Setiap indikator hanya punya satu periode, jadi dasbor membandingkan antarprovinsi, bukan antartahun.</li>
   </ul>
   <p class="count">Sebagian catatan ini diadaptasi dari analisis anggota kelompok pada prototipe ARUS.</p>
 </main>

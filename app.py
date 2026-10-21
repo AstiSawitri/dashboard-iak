@@ -244,20 +244,52 @@ INDIKATOR = ["produksi_gwh", "kapasitas_mw", "rumah_tangga_persen", "rumah_tangg
 @app.route("/api/etl")
 @login_required
 def api_etl():
-    """Riwayat sinkronisasi dan jumlah baris di tiap level data."""
+    """Alur ETL: jumlah baris di tiap lapisan + riwayat sinkronisasi."""
+    def n(tabel):
+        return db.query(f"SELECT COUNT(*) AS n FROM {tabel}")[0]["n"]
+
+    def teks_waktu(rows):
+        for x in rows:
+            for k in ("mulai", "selesai", "waktu"):
+                if x.get(k) is not None:
+                    x[k] = str(x[k])[:19]
+        return rows
+
+    if db.mode() == "dw":
+        # ETL Pentaho: staging di schema stg, integrasi di schema dw (dimensi + fakta)
+        lapisan = []
+        stg = db.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'stg' "
+                       "AND table_type = 'BASE TABLE' ORDER BY table_name")
+        for t in stg:
+            lapisan.append({"level": "1. Staging", "tabel": f"stg.{t['table_name']}", "baris": n(f"stg.{t['table_name']}")})
+        dw_tab = db.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'dw' "
+                          "AND table_type = 'BASE TABLE' ORDER BY table_name")
+        for t in dw_tab:
+            lapisan.append({"level": "2. Integrasi", "tabel": f"dw.{t['table_name']}", "baris": n(f"dw.{t['table_name']}")})
+        lapisan.append({"level": "3. Presentasi", "tabel": "v_provinsi_lengkap", "baris": n("v_provinsi_lengkap"),
+                        "ket": "5 dataset digabung per provinsi, dibaca dasbor"})
+        log = []
+        for tabel in ("fact_listrik_dibangkitkan", "fact_kapasitas_pembangkit", "fact_akses_listrik_rt", "fact_akses_listrik_sekolah"):
+            r = db.query(f"SELECT MAX(etl_loaded_at) AS waktu, COUNT(*) AS baris, "
+                         f"SUM(CASE WHEN flag_kualitas IS NOT NULL THEN 1 ELSE 0 END) AS flag FROM dw.{tabel}")[0]
+            log.append({"waktu": r["waktu"], "batch_id": "Pentaho", "tingkat": "integrasi", "dataset": f"dw.{tabel}",
+                        "baris": r["baris"], "status": "ok" if not r["flag"] else f"ok, {r['flag']} baris ber-flag",
+                        "hash_file": None})
+        log.sort(key=lambda x: str(x["waktu"]), reverse=True)
+        terakhir = log[0]["waktu"] if log else None
+        batch = [{"batch_id": "-", "alat": "Pentaho", "mulai": terakhir, "selesai": terakhir, "status": "berhasil"}] if terakhir else []
+        return jsonify({"mode": "dw", "lapisan": lapisan, "batch": teks_waktu(batch), "log": teks_waktu(log)})
+
+    lapisan = []
+    for ds in DATASETS:
+        lapisan.append({"level": "1. Staging", "tabel": f"stg_{ds}", "baris": n(f"stg_{ds}")})
+    for ds in ["provinsi"] + list(DATASETS):
+        lapisan.append({"level": "2. Integrasi", "tabel": ds, "baris": n(ds)})
+    lapisan.append({"level": "3. Presentasi", "tabel": "v_provinsi_lengkap", "baris": n("v_provinsi_lengkap"),
+                    "ket": "5 dataset digabung per provinsi, dibaca dasbor"})
     batch = db.query("SELECT * FROM etl_batch ORDER BY batch_id DESC LIMIT 10")
     log = db.query("SELECT * FROM etl_log ORDER BY id DESC LIMIT 40")
-    level = []
-    for ds in DATASETS:
-        stg = db.query(f"SELECT COUNT(*) AS n FROM stg_{ds}")[0]["n"]
-        integ = db.query(f"SELECT COUNT(*) AS n FROM {ds}")[0]["n"]
-        level.append({"dataset": ds, "staging": stg, "integrasi": integ})
-    pres = db.query("SELECT COUNT(*) AS n FROM v_provinsi_lengkap")[0]["n"]
-    for x in batch + log:
-        for k in ("mulai", "selesai", "waktu"):
-            if x.get(k) is not None:
-                x[k] = str(x[k])[:19]
-    return jsonify({"batch": batch, "log": log, "level": level, "presentasi": pres})
+    return jsonify({"mode": "lokal", "lapisan": lapisan, "batch": teks_waktu(batch), "log": teks_waktu(log)})
 
 
 @app.route("/api/ringkasan")

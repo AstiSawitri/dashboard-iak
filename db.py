@@ -31,10 +31,45 @@ if DATABASE_URL.startswith("postgres://"):
 IS_PG = DATABASE_URL.startswith("postgresql://")
 
 
+# ---------------------------------------------------------------------------
+# Mode sumber data
+#   "lokal" : tabel integrasi diisi etl_lokal.py (SQLite di laptop, atau PostgreSQL kosong)
+#   "dw"    : data warehouse hasil ETL Pentaho di schema `dw` (dim_* + fact_*). Web TIDAK mengubah
+#             schema dw; web membuat schema `arus` berisi view jembatan dengan nama tabel yang
+#             dibaca API (provinsi, rumah_tangga_listrik, ...), plus tabel users miliknya sendiri.
+# Otomatis "dw" kalau PostgreSQL punya dw.dim_provinsi. Paksa lewat SUMBER_DATA=lokal / dw.
+# ---------------------------------------------------------------------------
+_MODE = None
+
+
+def mode():
+    global _MODE
+    if _MODE is None:
+        paksa = os.environ.get("SUMBER_DATA", "").strip().lower()
+        if paksa in ("lokal", "dw"):
+            _MODE = paksa
+        elif not IS_PG:
+            _MODE = "lokal"
+        else:
+            import psycopg2
+            conn = psycopg2.connect(DATABASE_URL)
+            try:
+                cur = conn.cursor()
+                cur.execute("SELECT to_regclass('dw.dim_provinsi') IS NOT NULL")
+                _MODE = "dw" if cur.fetchone()[0] else "lokal"
+            finally:
+                conn.close()
+    return _MODE
+
+
 def connect():
     if IS_PG:
         import psycopg2  # di-install lewat requirements.txt
-        return psycopg2.connect(DATABASE_URL)
+        conn = psycopg2.connect(DATABASE_URL)
+        if mode() == "dw":
+            cur = conn.cursor()
+            cur.execute("SET search_path TO arus, public")
+        return conn
     path = os.environ.get("SQLITE_PATH", os.path.join(BASE_DIR, "energi.db"))
     conn = sqlite3.connect(path)
     return conn
@@ -225,7 +260,89 @@ STAGING = ["stg_rumah_tangga_listrik", "stg_produksi_listrik", "stg_kapasitas_pe
 TABEL_LAMA = ["konsumsi_energi", "rasio_elektrifikasi", "kapasitas_ebt", "pelanggan_listrik"]
 
 
+# Jembatan ke data warehouse Pentaho (schema dw). Dibaca sebagai tabel integrasi oleh web.
+_WILAYAH = """CASE WHEN CAST(p.kode_bps AS INTEGER) = 99 THEN 'Nasional'
+             WHEN CAST(p.kode_bps AS INTEGER) < 30 THEN 'Sumatera'
+             WHEN CAST(p.kode_bps AS INTEGER) < 40 THEN 'Jawa'
+             WHEN CAST(p.kode_bps AS INTEGER) < 60 THEN 'Bali dan Nusa Tenggara'
+             WHEN CAST(p.kode_bps AS INTEGER) < 70 THEN 'Kalimantan'
+             WHEN CAST(p.kode_bps AS INTEGER) < 80 THEN 'Sulawesi'
+             WHEN CAST(p.kode_bps AS INTEGER) < 90 THEN 'Maluku'
+             ELSE 'Papua' END"""
+_PROV = "dw.dim_provinsi p ON p.provinsi_key = f.provinsi_key AND p.tipe_wilayah IN ('PROVINSI', 'NASIONAL')"
+
+
+def _sekolah_dw(jenjang):
+    return f"""
+SELECT CAST(p.kode_bps AS INTEGER) AS kode_bps, CAST(t.tahun AS INTEGER) AS tahun,
+       CAST(MAX(CASE WHEN s.nama = 'Negeri' THEN f.persen_akses END) AS DOUBLE PRECISION) AS negeri_persen,
+       CAST(MAX(CASE WHEN s.nama = 'Swasta' THEN f.persen_akses END) AS DOUBLE PRECISION) AS swasta_persen,
+       CAST(MAX(CASE WHEN s.is_total THEN f.persen_akses END) AS DOUBLE PRECISION) AS total_persen
+FROM dw.fact_akses_listrik_sekolah f
+JOIN {_PROV}
+JOIN dw.dim_tahun t ON t.tahun_key = f.tahun_key
+JOIN dw.dim_jenjang_sekolah j ON j.jenjang_key = f.jenjang_key AND j.kode = '{jenjang}'
+JOIN dw.dim_status_sekolah s ON s.status_key = f.status_key
+GROUP BY p.kode_bps, t.tahun"""
+
+
+DW_JEMBATAN = {
+    "provinsi": f"""
+SELECT CAST(p.kode_bps AS INTEGER) AS kode_bps, p.nama_standar AS nama, {_WILAYAH} AS wilayah
+FROM dw.dim_provinsi p
+WHERE p.tipe_wilayah IN ('PROVINSI', 'NASIONAL') AND p.kode_bps IS NOT NULL""",
+    "rumah_tangga_listrik": f"""
+SELECT CAST(p.kode_bps AS INTEGER) AS kode_bps, CAST(t.tahun AS INTEGER) AS tahun,
+       CAST(MAX(CASE WHEN k.nama = 'Perkotaan' THEN f.persen_rt END) AS DOUBLE PRECISION) AS perkotaan_persen,
+       CAST(MAX(CASE WHEN k.nama = 'Perdesaan' THEN f.persen_rt END) AS DOUBLE PRECISION) AS perdesaan_persen,
+       CAST(MAX(CASE WHEN k.is_gabungan THEN f.persen_rt END) AS DOUBLE PRECISION) AS total_persen
+FROM dw.fact_akses_listrik_rt f
+JOIN {_PROV}
+JOIN dw.dim_tahun t ON t.tahun_key = f.tahun_key
+JOIN dw.dim_klasifikasi_wilayah k ON k.klasifikasi_key = f.klasifikasi_key
+GROUP BY p.kode_bps, t.tahun""",
+    "produksi_listrik": f"""
+SELECT CAST(p.kode_bps AS INTEGER) AS kode_bps, CAST(t.tahun AS INTEGER) AS tahun,
+       CAST(f.energi_gwh AS DOUBLE PRECISION) AS produksi_gwh
+FROM dw.fact_listrik_dibangkitkan f JOIN {_PROV} JOIN dw.dim_tahun t ON t.tahun_key = f.tahun_key""",
+    "kapasitas_pembangkit": f"""
+SELECT CAST(p.kode_bps AS INTEGER) AS kode_bps, CAST(t.tahun AS INTEGER) AS tahun,
+       CAST(f.kapasitas_mw AS DOUBLE PRECISION) AS kapasitas_mw
+FROM dw.fact_kapasitas_pembangkit f JOIN {_PROV} JOIN dw.dim_tahun t ON t.tahun_key = f.tahun_key""",
+    "sma_listrik": _sekolah_dw("SMA"),
+    "smk_listrik": _sekolah_dw("SMK"),
+    "sumber_data": """
+SELECT CASE d.kode_dataset WHEN 'RT_LISTRIK' THEN 'rumah_tangga_listrik' WHEN 'GWH' THEN 'produksi_listrik'
+            WHEN 'KAPASITAS' THEN 'kapasitas_pembangkit' WHEN 'SMA' THEN 'sma_listrik'
+            WHEN 'SMK' THEN 'smk_listrik' ELSE LOWER(d.kode_dataset) END AS kode,
+       d.nama_dataset AS nama, d.format_file AS format_asal,
+       CASE WHEN d.kode_dataset IN ('GWH', 'KAPASITAS') THEN COALESCE(d.sumber, 'Badan Pusat Statistik (BPS)')
+            WHEN d.kode_dataset IN ('SMA', 'SMK') THEN 'Satu Data, Pusdatin Kementerian Pendidikan Dasar dan Menengah'
+            ELSE COALESCE(d.sumber, 'Badan Pusat Statistik (BPS)') END AS sumber,
+       CASE WHEN d.kode_dataset IN ('GWH', 'KAPASITAS', 'RT_LISTRIK') THEN 'https://www.bps.go.id'
+            ELSE '' END AS url,
+       CASE WHEN d.satuan = 'Persen' THEN 'Persen' ELSE COALESCE(d.satuan, '') END AS keterangan,
+       d.nama_file AS file_asal,
+       CAST(SUBSTRING(d.periode_di_file FROM '[0-9]{4}') AS INTEGER) AS tahun_data,
+       0 AS data_contoh
+FROM dw.dim_dataset d""",
+}
+
+
+def _init_dw():
+    execute("CREATE SCHEMA IF NOT EXISTS arus")
+    for nama in list(VIEWS) + list(DW_JEMBATAN):
+        execute(f"DROP VIEW IF EXISTS arus.{nama} CASCADE")
+    for nama, sql in DW_JEMBATAN.items():
+        execute(f"CREATE VIEW arus.{nama} AS {sql}")
+    execute(SCHEMA[0])                       # cukup tabel users; data, staging, dan log milik Pentaho
+    for nama, sql in VIEWS.items():
+        execute(f"CREATE VIEW {nama} AS {sql}")
+
+
 def init_schema():
+    if mode() == "dw":
+        return _init_dw()
     # Bersihkan sisa versi pertama (data contoh) yang strukturnya berbeda
     if "jenis_pembangkit" in (_kolom("produksi_listrik") or []):
         execute("DROP TABLE produksi_listrik")

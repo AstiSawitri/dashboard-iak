@@ -252,4 +252,4 @@ document.addEventListener('keydown',e=>{
   else if(el.dataset.detail)detail(el.dataset.detail);
 });
 
-(async()=>{try{await enterApp(await api('/api/session'));}catch(err){console.error(err);const b=document.getElementById('boot');if(b)b.textContent='Data belum bisa dimuat. Pastikan ETL sudah dijalankan lalu muat ulang halaman.';}})();
+(async()=>{try{await enterApp(await api('/api/session'));}catch(err){console.error(err);const b=document.getElementById('boot');if(b)b.textContent='Data gagal dimuat. Coba muat ulang halaman.';}})();
