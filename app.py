@@ -73,12 +73,36 @@ def index():
     return redirect(url_for("dashboard") if "user_id" in session else url_for("login"))
 
 
+@app.route("/status")
+def status():
+    """Cek kesehatan koneksi database (tanpa membuka rahasia)."""
+    hasil = {"database_url_terisi": bool(db.DATABASE_URL), "postgres": db.IS_PG}
+    try:
+        hasil["mode"] = db.mode()
+        hasil["jumlah_user"] = db.query("SELECT COUNT(*) AS n FROM users")[0]["n"]
+        hasil["admin_ada"] = bool(db.query("SELECT id FROM users WHERE username = ?", ("admin",)))
+        hasil["baris_provinsi"] = db.query("SELECT COUNT(*) AS n FROM v_provinsi_lengkap")[0]["n"]
+        hasil["ok"] = True
+    except Exception as e:  # noqa: BLE001
+        pesan = str(e)
+        if db.DATABASE_URL and "@" in db.DATABASE_URL:
+            pesan = pesan.replace(db.DATABASE_URL.split("@")[0], "***")
+        hasil.update(ok=False, error=type(e).__name__, pesan=pesan[:400])
+    return jsonify(hasil)
+
+
 @app.route("/masuk", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         username = request.form.get("username", "").strip().lower()
         password = request.form.get("password", "")
-        rows = db.query("SELECT id, nama, password_hash FROM users WHERE username = ?", (username,))
+        try:
+            rows = db.query("SELECT id, nama, password_hash FROM users WHERE username = ?", (username,))
+        except Exception as e:  # noqa: BLE001
+            app.logger.exception("login gagal")
+            flash("Server gagal terhubung ke database. Coba lagi sebentar.")
+            print("LOGIN DB ERROR:", type(e).__name__, str(e)[:300])
+            return render_template("login.html", allow_register=ALLOW_REGISTER)
         if rows and check_password_hash(rows[0]["password_hash"], password):
             session.clear()
             session["user_id"] = rows[0]["id"]
