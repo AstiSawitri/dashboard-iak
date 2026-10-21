@@ -1,12 +1,25 @@
 {
+  "regions": [
+    "sin1"
+  ],
   "builds": [
     {
       "src": "app.py",
       "use": "@vercel/python",
-      "config": { "includeFiles": ["templates/**", "static/**", "db.py", "seed.py"] }
+      "config": {
+        "includeFiles": [
+          "templates/**",
+          "static/**",
+          "db.py",
+          "seed.py"
+        ]
+      }
     }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "app.py" }
+    {
+      "src": "/(.*)",
+      "dest": "app.py"
+    }
   ]
 }
