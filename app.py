@@ -391,8 +391,14 @@ def not_found(_):
     return render_template("404.html"), 404
 
 
-# Buat tabel kalau belum ada (aman dijalankan berulang kali)
-db.init_schema()
+# Buat tabel kalau belum ada (aman dijalankan berulang kali).
+# Kalau database sempat tidak bisa dihubungi, app tetap jalan dan view yang sudah ada tetap dipakai.
+try:
+    db.init_schema()
+    import seed
+    seed.seed_user()                  # pastikan akun demo admin ada (juga di Vercel)
+except Exception as e:  # noqa: BLE001
+    print("Peringatan: gagal menyiapkan skema database:", e)
 
 if __name__ == "__main__":
     app.run(debug=True, host="127.0.0.1", port=int(os.environ.get("PORT", 8000)))

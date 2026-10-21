@@ -42,6 +42,22 @@ IS_PG = DATABASE_URL.startswith("postgresql://")
 _MODE = None
 
 
+def _pg_connect():
+    """Koneksi ke PostgreSQL/Supabase dengan SSL dan coba ulang kalau pooler sempat menolak."""
+    import time
+    import psycopg2  # di-install lewat requirements.txt
+    opsi = dict(connect_timeout=15, keepalives=1, keepalives_idle=30)
+    if "sslmode=" not in DATABASE_URL and "localhost" not in DATABASE_URL and "127.0.0.1" not in DATABASE_URL:
+        opsi["sslmode"] = "require"
+    for coba in range(4):
+        try:
+            return psycopg2.connect(DATABASE_URL, **opsi)
+        except psycopg2.OperationalError:
+            if coba == 3:
+                raise
+            time.sleep(1.5 * (coba + 1))
+
+
 def mode():
     global _MODE
     if _MODE is None:
@@ -51,8 +67,7 @@ def mode():
         elif not IS_PG:
             _MODE = "lokal"
         else:
-            import psycopg2
-            conn = psycopg2.connect(DATABASE_URL)
+            conn = _pg_connect()
             try:
                 cur = conn.cursor()
                 cur.execute("SELECT to_regclass('dw.dim_provinsi') IS NOT NULL")
@@ -64,8 +79,7 @@ def mode():
 
 def connect():
     if IS_PG:
-        import psycopg2  # di-install lewat requirements.txt
-        conn = psycopg2.connect(DATABASE_URL)
+        conn = _pg_connect()
         if mode() == "dw":
             cur = conn.cursor()
             cur.execute("SET search_path TO arus, public")
@@ -330,14 +344,20 @@ FROM dw.dim_dataset d""",
 
 
 def _init_dw():
-    execute("CREATE SCHEMA IF NOT EXISTS arus")
-    for nama in list(VIEWS) + list(DW_JEMBATAN):
-        execute(f"DROP VIEW IF EXISTS arus.{nama} CASCADE")
-    for nama, sql in DW_JEMBATAN.items():
-        execute(f"CREATE VIEW arus.{nama} AS {sql}")
-    execute(SCHEMA[0])                       # cukup tabel users; data, staging, dan log milik Pentaho
-    for nama, sql in VIEWS.items():
-        execute(f"CREATE VIEW {nama} AS {sql}")
+    """Semua perintah lewat SATU koneksi dan satu transaksi, supaya pooler Supabase tidak kebanjiran koneksi."""
+    perintah = ["CREATE SCHEMA IF NOT EXISTS arus"]
+    perintah += [f"DROP VIEW IF EXISTS arus.{nama} CASCADE" for nama in list(VIEWS) + list(DW_JEMBATAN)]
+    perintah += [f"CREATE VIEW arus.{nama} AS {sql}" for nama, sql in DW_JEMBATAN.items()]
+    perintah.append(SCHEMA[0])               # cukup tabel users; data, staging, dan log milik Pentaho
+    perintah += [f"CREATE VIEW {nama} AS {sql}" for nama, sql in VIEWS.items()]
+    conn = connect()
+    try:
+        cur = conn.cursor()
+        for q in perintah:
+            cur.execute(q)
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def init_schema():
