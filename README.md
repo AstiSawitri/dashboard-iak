@@ -2,148 +2,166 @@
 
 ![ARUS](static/img/arus-logo.png)
 
-Website dashboard untuk tugas Integrasi Aplikasi Korporasi (EAI), tema **Energi**.
-Fitur: login, peta 38 provinsi, eksplorasi dan visualisasi 5 dataset kelistrikan (rumah tangga
-berlistrik, produksi listrik, kapasitas pembangkit, SMA dan SMK berlistrik), filter wilayah dan
-provinsi, halaman sumber data, dan unduh CSV.
+Website dashboard untuk tugas mata kuliah **Integrasi Aplikasi Korporasi**, tema **Energi**.
+ARUS menggabungkan lima dataset kelistrikan per provinsi supaya terlihat provinsi mana yang
+listriknya sudah merata dan mana yang belum.
 
-Menu: **Ringkasan** (`/dasbor`), **Eksplorasi provinsi** (`/atlas#explore`), **Bandingkan**
-(`/atlas#compare`), **Data dan sumber** (`/data`). Eksplorasi dan Bandingkan adalah dashboard ARUS
-buatan anggota kelompok, dipasang di kerangka web ini dan mengambil data dari `/atlas/api/data`.
-Tampilannya diselaraskan: `tools/samakan_atlas.py` mengubah CSS asli ARUS
-(`data/arus_styles_asli.css`) jadi `static/atlas/styles.css` (dibatasi ke `.arus`, palet dan font
-web utama), lalu `static/atlas/tema.css` merapikan sisanya.
+**Website:** https://dashboard-iak-sand.vercel.app
+(masuk dengan username `admin`, kata sandi `energi2024`)
+
+## Fitur
+
+- Login dan buat akun (kata sandi disimpan sebagai hash).
+- **Ringkasan** (`/dasbor`): angka nasional, peta 38 provinsi, peringkat, dan grafik per indikator.
+- **Eksplorasi provinsi** (`/atlas#explore`): pilih indikator dan provinsi, lihat profil lengkapnya.
+- **Bandingkan** (`/atlas#compare`): bandingkan dua provinsi berdampingan.
+- **Data dan sumber** (`/data`): asal tiap dataset, alur ETL, riwayat sinkronisasi, isi tabel, dan
+  unduh CSV.
+- Filter wilayah (Sumatera, Jawa, Kalimantan, dan seterusnya) dan provinsi.
+
+## Dataset
+
+Lima dataset dengan tiga format file asal, digabung per provinsi lewat kode wilayah BPS.
+
+| Dataset | Format asal | Sumber | Tahun |
+|---|---|---|---|
+| Persentase rumah tangga dengan sumber penerangan utama listrik (kota, desa, total) | JSON | Badan Pusat Statistik (BPS), Susenas Maret | 2024 |
+| Tenaga listrik yang dibangkitkan (GWh) | CSV | Badan Pusat Statistik (BPS) | 2024 |
+| Kapasitas terpasang pembangkit listrik (MW) | XLSX | Badan Pusat Statistik (BPS) | 2024 |
+| Proporsi SMA yang memiliki akses listrik (negeri, swasta, total) | XLSX | Satu Data, Pusdatin Kementerian Pendidikan Dasar dan Menengah | 2023 |
+| Proporsi SMK yang memiliki akses listrik (negeri, swasta, total) | XLSX | Satu Data, Pusdatin Kementerian Pendidikan Dasar dan Menengah | 2023 |
+
+File aslinya ada di `data/mentah/`.
 
 ## Arsitektur
 
 ```
- [JSON / CSV / XLSX di data/mentah]                       Data-level EAI
-          │  Extract → Transform → Load (Pentaho, atau etl_lokal.py)
+ [JSON / CSV / XLSX]                                    Data-level integration
+          │  Extract → Transform → Load (Pentaho Data Integration)
           ▼
- ┌──────────────────────────┐
- │ Database PostgreSQL      │   provinsi + 5 tabel data + users + sumber_data
- │ (Supabase / SQLite lokal)│
- └────────────┬─────────────┘
-              │ SQL
- ┌────────────▼─────────────┐                               Application Interface-level EAI
- │ Flask (app.py)           │   login, /api/gabungan, /api/data/<dataset>, /api/ringkasan
- └────────────┬─────────────┘
-              │ JSON lewat HTTP
- ┌────────────▼─────────────┐
- │ Browser (HTML + Chart.js)│   halaman masuk, ringkasan, data dan sumber
- └──────────────────────────┘
+ ┌────────────────────────────────┐
+ │ PostgreSQL di Supabase         │   schema stg  : staging, salinan mentah file (duplikasi)
+ │                                │   schema dw   : data warehouse, tabel dimensi + fakta
+ │                                │   schema arus : view jembatan + view v_provinsi_lengkap
+ └───────────────┬────────────────┘
+                 │ SQL
+ ┌───────────────▼────────────────┐                     Application interface-level integration
+ │ Flask (app.py)                 │   login, API JSON dan CSV
+ └───────────────┬────────────────┘
+                 │ JSON lewat HTTP
+ ┌───────────────▼────────────────┐
+ │ Browser (HTML, CSS, Chart.js)  │   ringkasan, eksplorasi, bandingkan, data dan sumber
+ └────────────────────────────────┘
 ```
 
-Ini **three-tier**: user interface (templates + static), business logic (Flask), data (database).
+Aplikasi ini **three-tier**: tampilan (`templates/`, `static/`), logika (Flask), dan data
+(PostgreSQL).
 
-Di dalam database ada **tiga level data**: `stg_*` (staging, salinan mentah file = duplikasi),
-tabel integrasi (`provinsi`, `rumah_tangga_listrik`, …, hasil transformasi), dan view presentasi
-`v_provinsi_lengkap` yang dibaca API. Setiap sinkronisasi ETL dicatat di `etl_batch` dan `etl_log`
-(termasuk hash file, jadi file yang tidak berubah tidak dimuat ulang). Riwayatnya tampil di halaman
-Data dan sumber. Detail di `SKEMA_DATA.md`.
+### Alur ETL
+
+1. **Duplikasi (staging).** Pentaho menyalin isi tiap file apa adanya ke schema `stg`.
+2. **Transformasi.** Nama provinsi diseragamkan, angka dibersihkan, kode BPS dipasang, lalu data
+   dimuat ke schema `dw` sebagai tabel dimensi (`dim_provinsi`, `dim_tahun`, `dim_dataset`,
+   `dim_klasifikasi_wilayah`, `dim_jenjang_sekolah`, `dim_status_sekolah`) dan tabel fakta
+   (`fact_listrik_dibangkitkan`, `fact_kapasitas_pembangkit`, `fact_akses_listrik_rt`,
+   `fact_akses_listrik_sekolah`).
+3. **Sinkronisasi.** Setiap baris fakta mencatat waktu muat (`etl_loaded_at`). Web membaca dari view,
+   jadi begitu Pentaho memuat ulang data, dasbor langsung ikut berubah tanpa perlu diubah kodenya.
+
+Web tidak pernah mengubah schema `stg` dan `dw`. Saat aplikasi menyala, `db.py` membuat view jembatan
+di schema `arus` yang mengubah bentuk dimensi dan fakta menjadi satu baris per provinsi
+(`v_provinsi_lengkap`). Jumlah baris tiap lapisan dan waktu muat terakhir tampil di halaman
+**Data dan sumber**.
+
+Sebagai pembanding, `etl_lokal.py` menjalankan alur yang sama dengan Python ke SQLite (staging,
+integrasi, presentasi, dengan log dan hash file). Skrip ini hanya untuk percobaan di laptop dan
+otomatis menolak berjalan kalau database berisi data warehouse Pentaho.
 
 ## Struktur folder
 
 ```
 dashboard-energi/
-├── app.py            # Flask: login, halaman, API
-├── db.py             # koneksi database + skema tabel
-├── seed.py           # buat tabel + akun demo
-├── etl_lokal.py      # ETL Python dari data/mentah (cadangan/pembanding Pentaho)
-├── buat_peta.py      # ubah GeoJSON jadi static/peta.json (sekali saja)
-├── tools/buat_logo.py  # bikin ulang logo ARUS (static/img/)
-├── tools/samakan_atlas.py  # selaraskan CSS ARUS dengan tampilan web utama
-├── data/mentah/      # 5 file asli
-├── data/peta/        # GeoJSON 38 provinsi + lisensinya
+├── app.py              # Flask: login, halaman, API
+├── db.py               # koneksi database, view jembatan ke data warehouse
+├── seed.py             # siapkan tabel users + akun admin
+├── etl_lokal.py        # ETL Python pembanding (SQLite)
+├── buat_peta.py        # ubah GeoJSON jadi static/peta.json
+├── tools/
+│   ├── buat_logo.py      # bikin ulang logo ARUS
+│   └── samakan_atlas.py  # selaraskan CSS halaman Eksplorasi/Bandingkan dengan web utama
+├── data/mentah/        # 5 file data asli
+├── data/peta/          # GeoJSON 38 provinsi + lisensinya
+├── templates/          # HTML (Jinja)
+├── static/             # CSS, JavaScript, gambar
+├── SKEMA_DATA.md       # struktur tabel dan kolom
 ├── requirements.txt
-├── render.yaml       # konfigurasi deploy Render
-├── .env.example      # contoh pengaturan
-├── SKEMA_DATA.md     # kontrak tabel untuk temen yang pegang Pentaho
-├── templates/        # HTML (Jinja)
-└── static/           # CSS dan JavaScript grafik
+├── vercel.json         # konfigurasi deploy Vercel
+└── .env.example        # contoh pengaturan
 ```
 
 ## Menjalankan di laptop (Windows)
 
-Butuh Python 3.10 atau lebih baru. Buka terminal (PowerShell) di folder ini:
+Butuh Python 3.10 atau lebih baru. Buka PowerShell di folder ini:
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
+```
+
+Salin `.env.example` menjadi `.env`, lalu isi `DATABASE_URL` dengan connection string Supabase
+(menu **Connect → Session pooler**) dan `SECRET_KEY` dengan teks acak. Setelah itu:
+
+```powershell
 python seed.py
-python etl_lokal.py          # tambahkan --paksa untuk muat ulang, --pantau 5 untuk sinkron tiap 5 menit
 python app.py
 ```
 
-Buka http://localhost:8000 lalu masuk dengan:
+Buka http://localhost:8000 dan masuk dengan `admin` / `energi2024`.
 
-- username: `admin`
-- kata sandi: `energi2024`
+Kalau `DATABASE_URL` dikosongkan, aplikasi memakai SQLite (`energi.db`). Isi datanya dengan
+`python etl_lokal.py`.
 
-Tanpa pengaturan apa pun, aplikasi memakai SQLite (`energi.db`). `etl_lokal.py` mengisinya dari
-5 file di `data/mentah/` dan mencetak log extract, transform, validasi, dan load (bisa dipakai di laporan).
+## Deploy ke Vercel
 
-Kalau sebelumnya sudah pernah menjalankan versi data contoh, tabel lama otomatis dihapus saat
-`python seed.py` dijalankan.
+1. Push folder ini ke GitHub. File `.env` dan `energi.db` tidak ikut karena sudah di-ignore.
+2. Di https://vercel.com, masuk dengan akun GitHub, pilih **Add New → Project**, lalu import
+   repository-nya.
+3. Di **Settings → Environment Variables**, isi `DATABASE_URL` (connection string Supabase) dan
+   `SECRET_KEY`.
+4. Deploy. Setiap `git push` ke branch `main` akan men-deploy ulang otomatis.
 
-## Pakai database Supabase (database yang sama dengan Pentaho)
+Server diatur di region Singapura (`sin1`) supaya dekat dengan database Supabase. Halaman `/status`
+menampilkan apakah koneksi ke database berhasil, tanpa membuka password.
 
-1. Buat akun di https://supabase.com, lalu **New project**. Simpan password database-nya.
-2. Klik **Connect** di atas dashboard project, pilih **Session pooler**, salin connection string-nya.
-3. Salin `.env.example` jadi `.env`, lalu isi:
-   ```
-   DATABASE_URL=postgresql://postgres.xxxxx:PASSWORDMU@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres
-   SECRET_KEY=string-acak-panjang
-   ```
-4. Jalankan `python seed.py` sekali. Ini membuat semua tabel + akun demo di Supabase.
-5. Isi datanya, salah satu:
-   - **Pentaho** (rencana kelompok): kirim `SKEMA_DATA.md` dan detail koneksi ke temen yang pegang ETL.
-   - **Cadangan**: `python etl_lokal.py` dengan `DATABASE_URL` yang sama.
-6. Kalau database sudah berisi data warehouse Pentaho (schema `dw`), web otomatis membaca dari sana
-   lewat view jembatan di schema `arus`. Data `dw` tidak diubah, dan `etl_lokal.py` menolak berjalan
-   supaya tidak menimpa hasil Pentaho. Paksa mode lain dengan `SUMBER_DATA=lokal` atau `SUMBER_DATA=dw`.
-
-## Deploy ke Render (gratis)
-
-1. Upload folder ini ke repository GitHub (file `.env` dan `energi.db` sudah di-ignore).
-2. Masuk ke https://render.com dengan akun GitHub, **New > Blueprint**, pilih repository-nya.
-   Render membaca `render.yaml`.
-3. Saat diminta, isi `DATABASE_URL` dengan connection string Supabase.
-4. Tunggu build selesai. Link website muncul di halaman service.
-
-Catatan versi gratis:
-
-- Website tidur setelah sekitar 15 menit tanpa pengunjung dan butuh kira-kira satu menit untuk
-  bangun. Buka link-nya beberapa menit sebelum presentasi.
-- Project Supabase gratis di-pause setelah seminggu tidak dipakai. Datanya aman, tinggal klik
-  **Restore** di dashboard Supabase. Cek H-1 presentasi.
-- Jangan pakai SQLite di Render: file di server gratis Render terhapus setiap restart.
+Project Supabase gratis di-pause setelah seminggu tidak dipakai. Datanya tetap aman, tinggal klik
+**Restore** di dashboard Supabase.
 
 ## API
 
-Semua endpoint butuh login (cookie session).
+Semua endpoint butuh login.
 
 | Endpoint | Isi |
 |---|---|
 | `GET /api/meta` | daftar provinsi, wilayah, sumber data, jumlah baris |
-| `GET /api/gabungan?wilayah=Papua` | satu baris per provinsi, kelima dataset digabung lewat `kode_bps`, plus faktor kapasitas dan selisih kota-desa |
+| `GET /api/gabungan?wilayah=Papua` | satu baris per provinsi, kelima dataset digabung lewat kode BPS |
 | `GET /api/ringkasan?kode=96` | angka nasional, atau satu provinsi beserta peringkatnya |
-| `GET /api/data/<dataset>?wilayah=&kode=&nasional=1` | isi satu tabel dalam JSON |
-| `GET /api/data/<dataset>.csv` | isi satu tabel dalam CSV |
+| `GET /api/data/<dataset>?wilayah=&kode=&nasional=1` | isi satu dataset dalam JSON |
+| `GET /api/data/<dataset>.csv` | isi satu dataset dalam CSV |
+| `GET /api/etl` | jumlah baris tiap lapisan ETL dan riwayat sinkronisasi |
+| `GET /atlas/api/data` | data untuk halaman Eksplorasi dan Bandingkan |
 
 `<dataset>`: `rumah_tangga_listrik`, `produksi_listrik`, `kapasitas_pembangkit`, `sma_listrik`,
 `smk_listrik`.
 
-## Kredit
-
-- Peta: Deny Herianto, *Indonesia GeoJSON & TopoJSON Maps (38 Provinces)*, CC BY 4.0.
-  Disederhanakan dan diproyeksikan menjadi jalur SVG oleh `buat_peta.py`.
-- Lima file data dan sebagian catatan metodologi berasal dari prototipe ARUS buatan anggota kelompok.
-
 ## Keamanan
 
 - Kata sandi disimpan sebagai hash (Werkzeug), bukan teks asli.
-- Query memakai parameter, dan nama tabel API dibatasi ke daftar yang diizinkan.
+- Query memakai parameter, dan nama dataset di API dibatasi ke daftar yang diizinkan.
 - Halaman dan API ditolak kalau belum login.
-- Matikan halaman "Buat akun" dengan `ALLOW_REGISTER=0` kalau tidak dibutuhkan.
+- Password database hanya disimpan di `.env` dan Environment Variables Vercel, tidak di GitHub.
+
+## Kredit
+
+- Peta: Deny Herianto, *Indonesia GeoJSON & TopoJSON Maps (38 Provinces)*, CC BY 4.0.
+- Data: Badan Pusat Statistik dan Satu Data Kementerian Pendidikan Dasar dan Menengah.
